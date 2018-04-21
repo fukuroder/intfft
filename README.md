@@ -3,7 +3,9 @@ Integer Fourier Transform in Python
 
 Installation
 ------------
-    sudo python3 setup.py install
+```
+sudo python3 setup.py install
+```
 
 Tests
 ------------
