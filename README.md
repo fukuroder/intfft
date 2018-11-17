@@ -1,5 +1,5 @@
 # pyintfft
-Integer Fast Fourier Transform in Python
+Integer FFT(Fast Fourier Transform) in Python
 
 Installation
 ------------
