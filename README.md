@@ -1,6 +1,13 @@
 # pyintfft
 Integer FFT(Fast Fourier Transform) in Python
 
+Function list
+------------
+- fft
+- ifft
+- rfft
+- irfft
+
 Installation
 ------------
 ```
