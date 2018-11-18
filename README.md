@@ -3,10 +3,13 @@ Integer FFT(Fast Fourier Transform) in Python
 
 Function list
 ------------
-- fft
-- ifft
-- rfft
-- irfft
+|Name|Description|
+|:---|:---|
+|fft|Discrete Fourier transform|
+|ifft|Inverse discrete Fourier transform|
+|rfft|Discrete Fourier transform of a real sequence|
+|irfft|Inverse discrete Fourier transform of a real sequence|
+
 
 Installation
 ------------
