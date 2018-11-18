@@ -66,3 +66,22 @@ def ifft(x):
         x3 = np.array([__ilift(a,b) for a,b in zip(ifft( x[3::4] ), w*w*w)])
         return np.concatenate(((2*x0+x1+x3)/4, (1j*x1+2*x2-1j*x3)/4, (2*x0-x1-x3)/4, (-1j*x1+2*x2+1j*x3)/4))
 
+def rfft(x):
+    x = np.asarray(x)
+    n = len(x)
+    if n == 1:
+        return x
+    elif n==2:
+        return np.array([x[0]+x[1], x[0]-x[1]])
+    else:
+        return fft(x)[:n//2+1]
+
+def irfft(x):
+    x = np.asarray(x)
+    n = len(x)
+    if n == 1:
+        return x
+    elif n==2:
+        return np.array([(x[0]+x[1])/2, (x[0]-x[1])/2])
+    else:
+        return ifft(np.concatenate((x, x[-2:0:-1].conjugate())))
