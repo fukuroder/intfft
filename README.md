@@ -32,7 +32,9 @@ array([1.+0.j, 2.+0.j, 3.+0.j, 4.+0.j, 5.+0.j, 6.+0.j, 7.+0.j, 8.+0.j])
 Tasks
 ------------
 - [ ] Add DCT/IDCT
+- [ ] Add MDCT/IMDCT
 - [ ] Implement with C++ extension
+- [ ] Implement with in-place algorithm
 
 Reference
 ------------
