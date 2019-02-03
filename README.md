@@ -1,4 +1,4 @@
-# pyintfft
+# intfft
 Integer FFT(Fast Fourier Transform) in Python
 
 Function list
