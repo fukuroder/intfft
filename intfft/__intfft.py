@@ -6,15 +6,30 @@ def __lift(x,w):
     a = np.array([x.real, x.imag])
     if s == 0:
         pass
-    elif c >= 0.0:
-        a[0] += int(a[1]*(c-1)/s)
-        a[1] += int(a[0]*s)
-        a[0] += int(a[1]*(c-1)/s)
     else:
-        a[0] += int(a[1]*(c+1)/s)
-        a[1] += int(a[0]*(-s))
-        a[0] += int(a[1]*(c+1)/s)
-        a *= -1
+        if s > c:
+            if s > -c: # (0.25pi, 0.75pi)
+                a[0], a[1] = a[1], a[0]
+                a[0] += int(a[1]*(s-1)/c)
+                a[1] += int(a[0]*c)
+                a[0] += int(a[1]*(s-1)/c)
+                a[0] *= -1
+            else: # (0.75pi, 1.25pi)
+                a[1] *= -1
+                a[0] += int(a[1]*(-c-1)/s)
+                a[1] += int(a[0]*s)
+                a[0] += int(a[1]*(-c-1)/s)
+                a[0] *= -1
+        else:
+            if s < -c: # (-0.75pi, -0.25pi)
+                a[0] += int(a[1]*(-s-1)/c)
+                a[1] += int(a[0]*c)
+                a[0] += int(a[1]*(-s-1)/c)
+                a[0], a[1] = a[1], -a[0]
+            else: # (-0.25pi, 0.25pi)
+                a[0] += int(a[1]*(c-1)/s)
+                a[1] += int(a[0]*s)
+                a[0] += int(a[1]*(c-1)/s)
     return complex(a[0], a[1])
 
 def __ilift(x,w):
@@ -22,15 +37,30 @@ def __ilift(x,w):
     a = np.array([x.real, x.imag])
     if s == 0:
         pass
-    elif c >= 0.0:
-        a[0] -= int(a[1]*(c-1)/s)
-        a[1] -= int(a[0]*s)
-        a[0] -= int(a[1]*(c-1)/s)
     else:
-        a *= -1
-        a[0] -= int(a[1]*(c+1)/s)
-        a[1] -= int(a[0]*(-s))
-        a[0] -= int(a[1]*(c+1)/s)
+        if s > c:
+            if s > -c: # (0.25pi, 0.75pi)
+                a[0] *= -1
+                a[0] -= int(a[1]*(s-1)/c)
+                a[1] -= int(a[0]*c)
+                a[0] -= int(a[1]*(s-1)/c)
+                a[0], a[1] = a[1], a[0]
+            else: # (0.75pi, 1.25pi)
+                a[0] *= -1
+                a[0] -= int(a[1]*(-c-1)/s)
+                a[1] -= int(a[0]*s)
+                a[0] -= int(a[1]*(-c-1)/s)
+                a[1] *= -1
+        else:
+            if s < -c: # (-0.75pi, -0.25pi)
+                a[0], a[1] = -a[1], a[0]
+                a[0] -= int(a[1]*(-s-1)/c)
+                a[1] -= int(a[0]*c)
+                a[0] -= int(a[1]*(-s-1)/c)
+            else: # (-0.25pi, 0.25pi)
+                a[0] -= int(a[1]*(c-1)/s)
+                a[1] -= int(a[0]*s)
+                a[0] -= int(a[1]*(c-1)/s)
     return complex(a[0], a[1])
 
 def fft(x):
@@ -47,7 +77,7 @@ def fft(x):
         x0 = fftsx[0::2]
         x1 = fft( [__lift(a,b) for a, b in zip(x[0] - 1j*x[1] - x[2] + 1j*x[3], w)] )
         x2 = fftsx[1::2]
-        x3 = fft( [__lift(a,b) for a, b in zip(x[0] + 1j*x[1] - x[2] - 1j*x[3], w**3)] )
+        x3 = fft( [__lift(a,b) for a, b in zip(x[0] + 1j*x[1] - x[2] - 1j*x[3], w*w*w)] )
         return np.column_stack((x0, x1, x2, x3)).flatten()
 
 def ifft(x):
