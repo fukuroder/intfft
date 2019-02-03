@@ -11,7 +11,7 @@ Function list
 |irfft|Inverse discrete Fourier transform of a real sequence|
 
 
-Installation
+Installation(Ubuntu)
 ------------
 ```
 sudo python3 setup.py install
@@ -35,6 +35,7 @@ Tasks
 - [ ] Add MDCT/IMDCT
 - [ ] Implement with C++ extension
 - [ ] Implement with in-place algorithm
+- [ ] Register to PyPI
 
 Reference
 ------------
