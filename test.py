@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from intfft import fft, ifft, rfft, irfft
+from intfft import fft, ifft
 
 class TestIntfft(unittest.TestCase):
     def test_fft(self):
