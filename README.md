@@ -8,10 +8,10 @@ Function list
 |fft|Discrete Fourier transform|
 |ifft|Inverse discrete Fourier transform|
 
-Installation(Ubuntu)
+Installation
 ------------
 ```
-sudo python3 setup.py install
+pip install git+https://github.com/fukuroder/intfft
 ```
 
 Tests
@@ -31,8 +31,8 @@ Tasks
 - [ ] Add real FFT/IFFT
 - [ ] Add DCT/IDCT
 - [ ] Add MDCT/IMDCT
-- [ ] Implement with C++ extension
-- [ ] Implement with in-place algorithm
+- [x] Implement with C++ extension
+- [x] Implement with in-place algorithm
 - [ ] Register to PyPI
 
 Reference
