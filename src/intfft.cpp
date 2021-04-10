@@ -74,14 +74,14 @@ inline std::complex<double> lift_(const std::complex<double>& x, const std::comp
             xr += static_cast<int>(xi*(s-1)/c);
             xi += static_cast<int>(xr*c);
             xr += static_cast<int>(xi*(s-1)/c);
-            xr *= -1;
+            xr = -xr;
         }
         else{ // (0.75pi, 1.25pi)
-            xi *= -1;
+            xi = -xi;
             xr += static_cast<int>(xi*(-c-1)/s);
             xi += static_cast<int>(xr*s);
             xr += static_cast<int>(xi*(-c-1)/s);
-            xr *= -1;
+            xr = -xr;
         }
     }
     else{
@@ -113,18 +113,18 @@ inline std::complex<double> ilift_(const std::complex<double>& x, const std::com
 
     if(s > c){
         if(s > -c){ // (0.25pi, 0.75pi)
-            xr *= -1;
+            xr = -xr;
             xr -= static_cast<int>(xi*(s-1)/c);
             xi -= static_cast<int>(xr*c);
             xr -= static_cast<int>(xi*(s-1)/c);
             const double t = xr; xr = xi, xi = t;
         }
         else{ // (0.75pi, 1.25pi)
-            xr *= -1;
+            xr = -xr;
             xr -= static_cast<int>(xi*(-c-1)/s);
             xi -= static_cast<int>(xr*s);
             xr -= static_cast<int>(xi*(-c-1)/s);
-            xi *= -1;
+            xi = -xi;
         }
     }
     else{
@@ -209,9 +209,9 @@ void ifft_(int n, std::complex<double>* a)
     // radix 2 butterflies
     for (int k = 2; k <= n; k <<= 2) {
         for (int j = k - 2; j < n; j += 2 * k) {
-            const std::complex<double> x0 = (a[j] - a[j + 1]) / 2.0;
-            a[j] = (a[j] + a[j + 1]) / 2.0;
-            a[j + 1] = x0;
+            const std::complex<double> x0 = a[j];
+            a[j] = (x0 + a[j + 1]) / 2.0;
+            a[j + 1] = x0 - a[j];
         }
     }
 
@@ -233,11 +233,11 @@ void ifft_(int n, std::complex<double>* a)
                     const std::complex<double> x2 = ilift_(a[j2], w1);
                     const std::complex<double> x3 = ilift_(a[j3], w3);
                     const std::complex<double> x2_ = (x2 + x3)/2.0;
-                    const std::complex<double> x3_ = (x2 - x3)/2.0*1.0i;
+                    const std::complex<double> x3_ = (x2 - x2_)*1.0i;
                     a[j0] = (x0 + x2_)/2.0;
                     a[j1] = (x1 + x3_)/2.0;
-                    a[j2] = (x0 - x2_)/2.0;
-                    a[j3] = (x1 - x3_)/2.0;
+                    a[j2] = (x0 - a[j0]);
+                    a[j3] = (x1 - a[j1]);
                 }
             }
         }
