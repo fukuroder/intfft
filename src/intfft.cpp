@@ -1,7 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 namespace py = pybind11;
-
 static const double PI = 3.14159265358979323846;
 
 /*
@@ -246,52 +245,64 @@ void ifft_(int n, int32_t* ar, int32_t* ai)
     }
 }
 
-template <typename T>
-std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft(py::array_t<T, 0> ar_, py::array_t<T, 0> ai_) {
-    py::array_t<int32_t> ar(ar_); // convert
-    py::array_t<int32_t> ai(ai_); // convert
-    
+bool check_pow2(size_t x)
+{
+    if(x == 0){
+        return false;
+    }
+    return (x & (x-1))==0;
+}
+
+template <typename T> void check_args(py::array_t<T, 0>& ar, py::array_t<T, 0>& ai)
+{
+    if(ar.ndim() != 1){
+        throw std::runtime_error("ar.ndim != 1");
+    }
+    if(ai.ndim() != 1){
+        throw std::runtime_error("ai.ndim != 1");
+    }
     if(ar.shape(0) != ai.shape(0)){
         throw std::runtime_error("ar.shape(0) != ai.shape(0)");
     }
-    fft_(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
-    return {ar, ai};
+    if(check_pow2(ar.shape(0)) == false){
+        throw std::runtime_error("ar.shape(0) is not a power of 2");
+    }  
+}
+
+template <typename T>
+std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft(py::array_t<T, 0> ar, py::array_t<T, 0> ai) {    
+    check_args<T>(ar, ai);
+    py::array_t<int32_t> ar_(ar); // convert
+    py::array_t<int32_t> ai_(ai); // convert
+    fft_(static_cast<int>(ar_.shape(0)), static_cast<int32_t*>(ar_.request().ptr), static_cast<int32_t*>(ai_.request().ptr));
+    return {ar_, ai_};
 }
 
 template <>
-std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft<int32_t>(py::array_t<int32_t, 0> ar_, py::array_t<int32_t, 0> ai_) {
-    py::array_t<int32_t> ar(ar_.request()); // copy
-    py::array_t<int32_t> ai(ai_.request()); // copy
-    
-    if(ar.shape(0) != ai.shape(0)){
-        throw std::runtime_error("ar.shape(0) != ai.shape(0)");
-    }
-    fft_(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
-    return {ar, ai};
+std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft<int32_t>(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai) {
+    check_args<int32_t>(ar, ai);
+    py::array_t<int32_t> ar_(ar.request()); // copy
+    py::array_t<int32_t> ai_(ai.request()); // copy
+    fft_(static_cast<int>(ar_.shape(0)), static_cast<int32_t*>(ar_.request().ptr), static_cast<int32_t*>(ai_.request().ptr));
+    return {ar_, ai_};
 }
 
 template <typename T>
-std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> ifft(py::array_t<T, 0> ar_, py::array_t<T, 0>  ai_) {
-    py::array_t<int32_t> ar(ar_); // convert
-    py::array_t<int32_t> ai(ai_); // convert
-    
-    if(ar.shape(0) != ai.shape(0)){
-        throw std::runtime_error("ar.shape(0) != ai.shape(0)");
-    }
-    ifft_(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
-    return {ar, ai};
+std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> ifft(py::array_t<T, 0> ar, py::array_t<T, 0>  ai) {
+    check_args<T>(ar, ai);
+    py::array_t<int32_t> ar_(ar); // convert
+    py::array_t<int32_t> ai_(ai); // convert
+    ifft_(static_cast<int>(ar_.shape(0)), static_cast<int32_t*>(ar_.request().ptr), static_cast<int32_t*>(ai_.request().ptr));
+    return {ar_, ai_};
 }
 
 template <>
-std::tuple<py::array_t<int>, py::array_t<int>> ifft<int32_t>(py::array_t<int32_t, 0> ar_, py::array_t<int32_t, 0>  ai_) {
-    py::array_t<int32_t> ar(ar_.request()); // copy
-    py::array_t<int32_t> ai(ai_.request()); // copy
-    
-    if(ar.shape(0) != ai.shape(0)){
-        throw std::runtime_error("ar.shape(0) != ai.shape(0)");
-    }
-    ifft_(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
-    return {ar, ai};
+std::tuple<py::array_t<int>, py::array_t<int>> ifft<int32_t>(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0>  ai) {
+    check_args<int32_t>(ar, ai);
+    py::array_t<int32_t> ar_(ar.request()); // copy
+    py::array_t<int32_t> ai_(ai.request()); // copy
+    ifft_(static_cast<int>(ar_.shape(0)), static_cast<int32_t*>(ar_.request().ptr), static_cast<int32_t*>(ai_.request().ptr));
+    return {ar_, ai_};
 }
 
 PYBIND11_MODULE(intfft, m) {

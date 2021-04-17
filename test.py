@@ -3,7 +3,6 @@ import numpy as np
 from intfft import fft, ifft
 
 class TestIntfft(unittest.TestCase):
-
     def _test_001_fft_input_int(self, dtype):
         xr1 = np.arange(2**7, dtype=dtype)
         xi1 = np.arange(2**7, dtype=dtype)
@@ -12,7 +11,6 @@ class TestIntfft(unittest.TestCase):
         _, _ = fft(xr1, xi1)
         self.assertTrue(np.all(xr1_==xr1))
         self.assertTrue(np.all(xi1_==xi1))
-    
     def test_001_fft_input_int_i8(self):self._test_001_fft_input_int(np.int8)
     def test_001_fft_input_int_i16(self):self._test_001_fft_input_int(np.int16)
     def test_001_fft_input_int_i32(self):self._test_001_fft_input_int(np.int32)
@@ -27,7 +25,6 @@ class TestIntfft(unittest.TestCase):
         _, _ = ifft(xr1, xi1)
         self.assertTrue(np.all(xr1_==xr1))
         self.assertTrue(np.all(xi1_==xi1))
-    
     def test_002_ifft_input_int_i8(self):self._test_002_ifft_input_int(np.int8)
     def test_002_ifft_input_int_i18(self):self._test_002_ifft_input_int(np.int16)
     def test_002_ifft_input_int_i32(self):self._test_002_ifft_input_int(np.int32)
@@ -43,7 +40,6 @@ class TestIntfft(unittest.TestCase):
             _, _ = fft(i, f)
         with self.assertRaises(Exception):
             _, _ = fft(f, f)
-    
     def test_003_fft_input_error_i64(self):self._test_003_fft_input_error(np.int64)
     def test_003_fft_input_error_u32(self):self._test_003_fft_input_error(np.uint32)
     def test_003_fft_input_error_u64(self):self._test_003_fft_input_error(np.uint64)
@@ -61,7 +57,6 @@ class TestIntfft(unittest.TestCase):
             _, _ = ifft(i, f)
         with self.assertRaises(Exception):
             _, _ = ifft(f, f)
-
     def test_004_ifft_input_error_i64(self):self._test_004_ifft_input_error(np.int64)
     def test_004_ifft_input_error_u32(self):self._test_004_ifft_input_error(np.uint32)
     def test_004_ifft_input_error_u64(self):self._test_004_ifft_input_error(np.uint64)
@@ -75,8 +70,7 @@ class TestIntfft(unittest.TestCase):
         xi1 = np.arange(2**7, dtype=dtype)
         xr2, xi2 = fft(xr1, xi1)
         self.assertTrue(xr2.dtype==np.int32)
-        self.assertTrue(xi2.dtype==np.int32)
-        
+        self.assertTrue(xi2.dtype==np.int32) 
     def test_005_fft_output_int_i8(self):self._test_005_fft_output_int(np.int8)
     def test_005_fft_output_int_i16(self):self._test_005_fft_output_int(np.int16)
     def test_005_fft_output_int_i32(self):self._test_005_fft_output_int(np.int32)
@@ -90,7 +84,6 @@ class TestIntfft(unittest.TestCase):
         xr3, xi3 = ifft(xr2, xi2)
         self.assertTrue(np.all(xr3==xr1))
         self.assertTrue(np.all(xi3==xi1))
-        
     def test_006_fft_invertible_int_i8(self):self._test_006_fft_invertible_int(np.int8)
     def test_006_fft_invertible_int_i16(self):self._test_006_fft_invertible_int(np.int16)
     def test_006_fft_invertible_int_i32(self):self._test_006_fft_invertible_int(np.int32)
@@ -104,7 +97,6 @@ class TestIntfft(unittest.TestCase):
         xr3, xi3 = ifft(xr2, xi2)
         self.assertTrue(np.all(xr3==xr1))
         self.assertTrue(np.all(xi3==xi1))
-    
     def test_007_max_n_2_00(self):self._test_007_max_n_2(2**0)
     def test_007_max_n_2_01(self):self._test_007_max_n_2(2**1)
     def test_007_max_n_2_02(self):self._test_007_max_n_2(2**2)
@@ -134,7 +126,6 @@ class TestIntfft(unittest.TestCase):
         xr3, xi3 = ifft(xr2, xi2)
         self.assertTrue(np.all(xr3==xr1))
         self.assertTrue(np.all(xi3==xi1))
-    
     def test_008_min_n_2_00(self):self._test_008_min_n_2(2**0)
     def test_008_min_n_2_01(self):self._test_008_min_n_2(2**1)
     def test_008_min_n_2_02(self):self._test_008_min_n_2(2**2)
@@ -165,7 +156,6 @@ class TestIntfft(unittest.TestCase):
             xr3, xi3 = ifft(xr2, xi2)
             self.assertTrue(np.all(xr3==xr1))
             self.assertTrue(np.all(xi3==xi1))
-    
     def test_009_random_n_2_00(self):self._test_009_random_n_2(2**0)
     def test_009_random_n_2_01(self):self._test_009_random_n_2(2**1)
     def test_009_random_n_2_02(self):self._test_009_random_n_2(2**2)
@@ -196,6 +186,26 @@ class TestIntfft(unittest.TestCase):
         xi2_ = [0, 158, 79, 51, 39, 34, 25, 18, 16, 15, 12, 2, 6, 6, 2, 3, 0, 0, -1, -1, -7, -10, -13, -14, -16, -17, -26, -28, -38, -58, -78, -159]
         self.assertTrue(np.all(xr2 == xr2_))
         self.assertTrue(np.all(xi2 == xi2_))
+
+    def _test_011_fft_input_shape_error(self, shape1, shape2, regex):
+        x1 = np.zeros(shape1, dtype=np.int32)
+        x2 = np.zeros(shape2, dtype=np.int32)
+        with self.assertRaisesRegex(Exception, regex):
+            _, _ = fft(x1, x2)
+    def test_011_fft_input_error_unexpected_ndim_ar(self):self._test_011_fft_input_shape_error((2**10,1), (2**10,), "ar\.ndim != 1")
+    def test_011_fft_input_error_unexpected_ndim_ai(self):self._test_011_fft_input_shape_error((2**10,), (2**10,1), "ai\.ndim != 1")
+    def test_011_fft_input_error_different_shape0(self):self._test_011_fft_input_shape_error(2**9, 2**10, "ar.shape\(0\) != ai.shape\(0\)")
+    def test_011_fft_input_error_not_pow2(self):self._test_011_fft_input_shape_error((2**10+1,), (2**10+1), "ar.shape\(0\) is not a power of 2")
+
+    def _test_012_ifft_input_shape_error(self, shape1, shape2, regex):
+        x1 = np.zeros(shape1, dtype=np.int32)
+        x2 = np.zeros(shape2, dtype=np.int32)
+        with self.assertRaisesRegex(Exception, regex):
+            _, _ = ifft(x1, x2)
+    def test_012_ifft_input_error_unexpected_ndim_ar(self):self._test_012_ifft_input_shape_error((2**10,1), (2**10,), "ar\.ndim != 1")
+    def test_012_ifft_input_error_unexpected_ndim_ai(self):self._test_012_ifft_input_shape_error((2**10,), (2**10,1), "ai\.ndim != 1")
+    def test_012_ifft_input_error_different_shape0(self):self._test_012_ifft_input_shape_error(2**9, 2**10, "ar.shape\(0\) != ai.shape\(0\)")
+    def test_012_ifft_input_error_not_pow2(self):self._test_012_ifft_input_shape_error((2**10+1,), (2**10+1), "ar.shape\(0\) is not a power of 2")
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
