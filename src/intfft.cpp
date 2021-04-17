@@ -1,171 +1,154 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
-#include <pybind11/complex.h>
 namespace py = pybind11;
 
 static const double PI = 3.14159265358979323846;
 
 /*
-inline std::complex<double> lift_(const std::complex<double>& x, const std::complex<double>& w)
+std::tuple<int32_t, int32_t> lift_(int32_t xr, int32_t xi, double c, double s)
 {
-    if(w.imag() == 0.0){
-        return x;
+    if(s == 0.0){
+        return {xr, xi};
     }
-
-    const double c = w.real();
-    const double s = w.imag();
-    double xr = x.real();
-    double xi = x.imag();
     
     if (c >= 0.0){ // (-0.5pi, 0.5pi)
-        xr += static_cast<int>(xi*(c-1)/s);
-        xi += static_cast<int>(xr*s);
-        xr += static_cast<int>(xi*(c-1)/s);
+        xr += static_cast<int32_t>(xi*(c-1)/s);
+        xi += static_cast<int32_t>(xr*s);
+        xr += static_cast<int32_t>(xi*(c-1)/s);
     }
     else{ // (0.5pi, 1.5pi)
-        xr += static_cast<int>(xi*(c+1)/s);
-        xi += static_cast<int>(xr*(-s));
-        xr += static_cast<int>(xi*(c+1)/s);
+        xr += static_cast<int32_t>(xi*(c+1)/s);
+        xi += static_cast<int32_t>(xr*(-s));
+        xr += static_cast<int32_t>(xi*(c+1)/s);
         xr = -xr; xi = -xi; 
     }
-    return std::complex<double>(xr, xi);
+    return {xr, xi};
 }
 
-inline std::complex<double> ilift_(const std::complex<double>& x, const std::complex<double>& w)
+std::tuple<int32_t, int32_t> ilift_(int32_t xr, int32_t xi, double c, double s)
 {
-    if(w.imag() == 0.0){
-        return x;
+    if(s == 0.0){
+        return {xr, xi};
     }
-
-    const double c = w.real();
-    const double s = w.imag();
-    double xr = x.real();
-    double xi = x.imag();
     
     if (c >= 0.0){ // (-0.5pi, 0.5pi)
-        xr -= static_cast<int>(xi*(c-1)/s);
-        xi -= static_cast<int>(xr*s);
-        xr -= static_cast<int>(xi*(c-1)/s);
+        xr -= static_cast<int32_t>(xi*(c-1)/s);
+        xi -= static_cast<int32_t>(xr*s);
+        xr -= static_cast<int32_t>(xi*(c-1)/s);
     }
     else{ // (0.5pi, 1.5pi)
         xr = -xr; xi = -xi; 
-        xr -= static_cast<int>(xi*(c+1)/s);
-        xi -= static_cast<int>(xr*(-s));
-        xr -= static_cast<int>(xi*(c+1)/s);
+        xr -= static_cast<int32_t>(xi*(c+1)/s);
+        xi -= static_cast<int32_t>(xr*(-s));
+        xr -= static_cast<int32_t>(xi*(c+1)/s);
     }
-    return std::complex<double>(xr, xi);
+    return {xr, xi};
 }
 */
 
-inline std::complex<double> lift_(const std::complex<double>& x, const std::complex<double>& w)
+std::tuple<int32_t, int32_t> lift_(int32_t xr, int32_t xi, double c, double s)
 {
-    if(w.imag() == 0.0){
-        return x;
+    if(s == 0.0){
+        return {xr, xi};
     }
-
-    const double c = w.real();
-    const double s = w.imag();
-    double xr = x.real();
-    double xi = x.imag();
     
     if(s > c){
         if (s > -c) {// (0.25pi, 0.75pi)
-            const double t = xr; xr = xi; xi = t;
-            xr += static_cast<int>(xi*(s-1)/c);
-            xi += static_cast<int>(xr*c);
-            xr += static_cast<int>(xi*(s-1)/c);
+            const int32_t t = xr; xr = xi; xi = t;
+            xr += static_cast<int32_t>(xi*(s-1)/c);
+            xi += static_cast<int32_t>(xr*c);
+            xr += static_cast<int32_t>(xi*(s-1)/c);
             xr = -xr;
         }
         else{ // (0.75pi, 1.25pi)
             xi = -xi;
-            xr += static_cast<int>(xi*(-c-1)/s);
-            xi += static_cast<int>(xr*s);
-            xr += static_cast<int>(xi*(-c-1)/s);
+            xr += static_cast<int32_t>(xi*(-c-1)/s);
+            xi += static_cast<int32_t>(xr*s);
+            xr += static_cast<int32_t>(xi*(-c-1)/s);
             xr = -xr;
         }
     }
     else{
         if (s < -c){ // (-0.75pi, -0.25pi)
-            xr += static_cast<int>(xi*(-s-1)/c);
-            xi += static_cast<int>(xr*c);
-            xr += static_cast<int>(xi*(-s-1)/c);
-            const double t = xr; xr = xi; xi = -t;
+            xr += static_cast<int32_t>(xi*(-s-1)/c);
+            xi += static_cast<int32_t>(xr*c);
+            xr += static_cast<int32_t>(xi*(-s-1)/c);
+            const int32_t t = xr; xr = xi; xi = -t;
         }
         else{ // (-0.25pi, 0.25pi)
-            xr += static_cast<int>(xi*(c-1)/s);
-            xi += static_cast<int>(xr*s);
-            xr += static_cast<int>(xi*(c-1)/s);
+            xr += static_cast<int32_t>(xi*(c-1)/s);
+            xi += static_cast<int32_t>(xr*s);
+            xr += static_cast<int32_t>(xi*(c-1)/s);
         }
     }
-    return std::complex<double>(xr, xi);
+    return {xr, xi};
 }
 
-inline std::complex<double> ilift_(const std::complex<double>& x, const std::complex<double>& w)
+std::tuple<int32_t, int32_t> ilift_(int32_t xr, int32_t xi, double c, double s)
 {
-    if(w.imag() == 0.0){
-        return x;
+    if(s == 0.0){
+        return {xr, xi};
     }
-    
-    const double c = w.real();
-    const double s = w.imag();
-    double xr = x.real();
-    double xi = x.imag();
 
     if(s > c){
         if(s > -c){ // (0.25pi, 0.75pi)
             xr = -xr;
-            xr -= static_cast<int>(xi*(s-1)/c);
-            xi -= static_cast<int>(xr*c);
-            xr -= static_cast<int>(xi*(s-1)/c);
-            const double t = xr; xr = xi, xi = t;
+            xr -= static_cast<int32_t>(xi*(s-1)/c);
+            xi -= static_cast<int32_t>(xr*c);
+            xr -= static_cast<int32_t>(xi*(s-1)/c);
+            const int32_t t = xr; xr = xi, xi = t;
         }
         else{ // (0.75pi, 1.25pi)
             xr = -xr;
-            xr -= static_cast<int>(xi*(-c-1)/s);
-            xi -= static_cast<int>(xr*s);
-            xr -= static_cast<int>(xi*(-c-1)/s);
+            xr -= static_cast<int32_t>(xi*(-c-1)/s);
+            xi -= static_cast<int32_t>(xr*s);
+            xr -= static_cast<int32_t>(xi*(-c-1)/s);
             xi = -xi;
         }
     }
     else{
         if(s < -c){ // (-0.75pi, -0.25pi)
-            const double t = xr; xr = -xi; xi = t;
-            xr -= static_cast<int>(xi*(-s-1)/c);
-            xi -= static_cast<int>(xr*c);
-            xr -= static_cast<int>(xi*(-s-1)/c);
+            const int32_t t = xr; xr = -xi; xi = t;
+            xr -= static_cast<int32_t>(xi*(-s-1)/c);
+            xi -= static_cast<int32_t>(xr*c);
+            xr -= static_cast<int32_t>(xi*(-s-1)/c);
         }
         else{ // (-0.25pi, 0.25pi)
-            xr -= static_cast<int>(xi*(c-1)/s);
-            xi -= static_cast<int>(xr*s);
-            xr -= static_cast<int>(xi*(c-1)/s);
+            xr -= static_cast<int32_t>(xi*(c-1)/s);
+            xi -= static_cast<int32_t>(xr*s);
+            xr -= static_cast<int32_t>(xi*(c-1)/s);
         }
     }
-    return std::complex<double>(xr, xi);
+    return {xr, xi};
 }
 
 // Created by referring to http://www.kurims.kyoto-u.ac.jp/~ooura/fftman/ftmn1_24.html#sec1_2_4
-void fft_(int n, std::complex<double>* a)
+void fft_(int n, int32_t* ar, int32_t* ai)
 {   
-    using namespace std::literals::complex_literals;
-
     // L shaped butterflies
     for (int m = n; m > 2; m >>= 1) {
         const double theta = -2 * PI / m;
         const int mq = m >> 2;
         for (int i = 0; i < mq; i++) {
-            const std::complex<double> w1 = std::polar(1.0, theta * i);
-            const std::complex<double> w3 = std::polar(1.0, theta * 3 * i);
+            const double s1 = std::sin(theta * i);
+            const double c1 = std::cos(theta * i);
+            const double s3 = std::sin(theta * 3 * i);
+            const double c3 = std::cos(theta * 3 * i);
             for (int k = m; k <= n; k <<= 2) {
                 for (int j0 = k - m + i; j0 < n; j0 += 2 * k) {
                     const int j1 = j0 + mq;
                     const int j2 = j1 + mq;
                     const int j3 = j2 + mq;
-                    const std::complex<double> x1 = a[j0] - a[j2];
-                    a[j0] += a[j2];
-                    const std::complex<double> x3 = a[j1] - a[j3];
-                    a[j1] += a[j3];
-                    a[j2] = lift_(x1 - x3*1.0i, w1); //a[j2] = (x1 - x3*1.0i) * w1;
-                    a[j3] = lift_(x1 + x3*1.0i, w3); //a[j3] = (x1 + x3*1.0i) * w3;
+                    const int32_t x1r = ar[j0] - ar[j2];
+                    const int32_t x1i = ai[j0] - ai[j2];
+                    ar[j0] += ar[j2];
+                    ai[j0] += ai[j2];
+                    const int32_t x3r = ar[j1] - ar[j3];
+                    const int32_t x3i = ai[j1] - ai[j3];
+                    ar[j1] += ar[j3];
+                    ai[j1] += ai[j3];
+                    std::tie(ar[j2], ai[j2]) = lift_(x1r + x3i, x1i - x3r, c1, s1);
+                    std::tie(ar[j3], ai[j3]) = lift_(x1r - x3i, x1i + x3r, c3, s3);
                 }
             }
         }
@@ -175,43 +158,53 @@ void fft_(int n, std::complex<double>* a)
     // radix 2 butterflies
     for (int k = 2; k <= n; k <<= 2) {
         for (int j = k - 2; j < n; j += 2 * k) {
-            const std::complex<double> x0 = a[j] - a[j + 1];
-            a[j] += a[j + 1];
-            a[j + 1] = x0;
+            const int32_t x0r = ar[j] - ar[j + 1];
+            const int32_t x0i = ai[j] - ai[j + 1];
+            ar[j] += ar[j + 1];
+            ai[j] += ai[j + 1];
+            ar[j + 1] = x0r;
+            ai[j + 1] = x0i;
         }
     }
     // unscrambler
     for (int i = 0, j = 1; j < n - 1; j++) {
         for (int k = n >> 1; k > (i ^= k); k >>= 1);
         if (j < i) {
-            const std::complex<double> x0 = a[j];
-            a[j] = a[i];
-            a[i] = x0;
+            const int32_t x0r = ar[j];
+            const int32_t x0i = ai[j];
+            ar[j] = ar[i];
+            ai[j] = ai[i];
+            ar[i] = x0r;
+            ai[i] = x0i;
         }
     }
 }
 
 // Created by referring to http://www.kurims.kyoto-u.ac.jp/~ooura/fftman/ftmn1_24.html#sec1_2_4
-void ifft_(int n, std::complex<double>* a)
+void ifft_(int n, int32_t* ar, int32_t* ai)
 {
-    using namespace std::literals::complex_literals;
-
     // scrambler
     for (int i = 0, j = 1; j < n - 1; j++) {
         for (int k = n >> 1; k > (i ^= k); k >>= 1);
         if (j < i) {
-            const std::complex<double> x0 = a[j];
-            a[j] = a[i];
-            a[i] = x0;
+            const int32_t x0r = ar[j];
+            const int32_t x0i = ai[j];
+            ar[j] = ar[i];
+            ai[j] = ai[i];
+            ar[i] = x0r;
+            ai[i] = x0i;
         }
     }
 
     // radix 2 butterflies
     for (int k = 2; k <= n; k <<= 2) {
         for (int j = k - 2; j < n; j += 2 * k) {
-            const std::complex<double> x0 = a[j];
-            a[j] = (x0 + a[j + 1]) / 2.0;
-            a[j + 1] = x0 - a[j];
+            const int32_t x0r = ar[j];
+            const int32_t x0i = ai[j];
+            ar[j] = (x0r + ar[j + 1]) / 2;
+            ai[j] = (x0i + ai[j + 1]) / 2;
+            ar[j + 1] = x0r - ar[j];
+            ai[j + 1] = x0i - ai[j];
         }
     }
 
@@ -220,42 +213,97 @@ void ifft_(int n, std::complex<double>* a)
         const double theta =  - 2 * PI / m;
         const int mq = m >> 2;
         for (int i = 0; i < mq; i++) {
-            const std::complex<double> w1 = std::polar(1.0, theta * i);
-            const std::complex<double> w3 = std::polar(1.0, theta * 3 * i);
+            const double s1 = std::sin(theta * i);
+            const double c1 = std::cos(theta * i);
+            const double s3 = std::sin(theta * 3 * i);
+            const double c3 = std::cos(theta * 3 * i);
             for (int k = m; k <= n; k <<= 2) {
                 for (int j0 = k - m + i; j0 < n; j0 += 2 * k) {
                     const int j1 = j0 + mq;
                     const int j2 = j1 + mq;
                     const int j3 = j2 + mq;
-
-                    const std::complex<double> x0 = a[j0];
-                    const std::complex<double> x1 = a[j1];
-                    const std::complex<double> x2 = ilift_(a[j2], w1);
-                    const std::complex<double> x3 = ilift_(a[j3], w3);
-                    const std::complex<double> x2_ = (x2 + x3)/2.0;
-                    const std::complex<double> x3_ = (x2 - x2_)*1.0i;
-                    a[j0] = (x0 + x2_)/2.0;
-                    a[j1] = (x1 + x3_)/2.0;
-                    a[j2] = (x0 - a[j0]);
-                    a[j3] = (x1 - a[j1]);
+                    const int32_t x0r = ar[j0];
+                    const int32_t x0i = ai[j0];
+                    const int32_t x1r = ar[j1];
+                    const int32_t x1i = ai[j1];
+                    auto [x2r, x2i] = ilift_(ar[j2], ai[j2], c1, s1);
+                    auto [x3r, x3i] = ilift_(ar[j3], ai[j3], c3, s3);
+                    const int32_t x2r_ = (x2r + x3r)/2;
+                    const int32_t x2i_ = (x2i + x3i)/2;
+                    const int32_t x3r_ = -(x2i - x2i_);
+                    const int32_t x3i_ = (x2r - x2r_);
+                    ar[j0] = (x0r + x2r_)/2;
+                    ai[j0] = (x0i + x2i_)/2;
+                    ar[j1] = (x1r + x3r_)/2;
+                    ai[j1] = (x1i + x3i_)/2;
+                    ar[j2] = (x0r - ar[j0]);
+                    ai[j2] = (x0i - ai[j0]);
+                    ar[j3] = (x1r - ar[j1]);
+                    ai[j3] = (x1i - ai[j1]);
                 }
             }
         }
     }
 }
 
-py::array_t<std::complex<double>> fft(py::array_t<std::complex<double>> x) {
-    fft_(static_cast<int>(x.shape(0)), static_cast<std::complex<double>*>(x.request().ptr));
-    return x;
+template <typename T>
+std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft(py::array_t<T, 0> ar_, py::array_t<T, 0> ai_) {
+    py::array_t<int32_t> ar(ar_); // convert
+    py::array_t<int32_t> ai(ai_); // convert
+    
+    if(ar.shape(0) != ai.shape(0)){
+        throw std::runtime_error("ar.shape(0) != ai.shape(0)");
+    }
+    fft_(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
+    return {ar, ai};
 }
 
-py::array_t<std::complex<double>> ifft(py::array_t<std::complex<double>> x) {
-    ifft_(static_cast<int>(x.shape(0)), static_cast<std::complex<double>*>(x.request().ptr));
-    return x;
+template <>
+std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft<int32_t>(py::array_t<int32_t, 0> ar_, py::array_t<int32_t, 0> ai_) {
+    py::array_t<int32_t> ar(ar_.request()); // copy
+    py::array_t<int32_t> ai(ai_.request()); // copy
+    
+    if(ar.shape(0) != ai.shape(0)){
+        throw std::runtime_error("ar.shape(0) != ai.shape(0)");
+    }
+    fft_(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
+    return {ar, ai};
+}
+
+template <typename T>
+std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> ifft(py::array_t<T, 0> ar_, py::array_t<T, 0>  ai_) {
+    py::array_t<int32_t> ar(ar_); // convert
+    py::array_t<int32_t> ai(ai_); // convert
+    
+    if(ar.shape(0) != ai.shape(0)){
+        throw std::runtime_error("ar.shape(0) != ai.shape(0)");
+    }
+    ifft_(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
+    return {ar, ai};
+}
+
+template <>
+std::tuple<py::array_t<int>, py::array_t<int>> ifft<int32_t>(py::array_t<int32_t, 0> ar_, py::array_t<int32_t, 0>  ai_) {
+    py::array_t<int32_t> ar(ar_.request()); // copy
+    py::array_t<int32_t> ai(ai_.request()); // copy
+    
+    if(ar.shape(0) != ai.shape(0)){
+        throw std::runtime_error("ar.shape(0) != ai.shape(0)");
+    }
+    ifft_(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
+    return {ar, ai};
 }
 
 PYBIND11_MODULE(intfft, m) {
     m.doc() = "Integer Fast Fourier Transform in Python";
-    m.def("fft", &fft, "");
-    m.def("ifft", &ifft, "");
+    m.def("fft", &fft<int8_t>, "");
+    m.def("fft", &fft<int16_t>, "");
+    m.def("fft", &fft<int32_t>, "");
+    m.def("fft", &fft<uint8_t>, "");
+    m.def("fft", &fft<uint16_t>, "");
+    m.def("ifft", &ifft<int8_t>, "");
+    m.def("ifft", &ifft<int16_t>, "");
+    m.def("ifft", &ifft<int32_t>, "");
+    m.def("ifft", &ifft<uint8_t>, "");
+    m.def("ifft", &ifft<uint16_t>, "");
 }

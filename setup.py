@@ -2,7 +2,7 @@ from setuptools import setup
 from pybind11.setup_helpers import Pybind11Extension
 
 ext_modules = [
-    Pybind11Extension("intfft", ["src/intfft.cpp"])
+    Pybind11Extension("intfft", ["src/intfft.cpp"], cxx_std=17)
 ]
 
 setup(
