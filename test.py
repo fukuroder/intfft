@@ -118,6 +118,32 @@ class TestIntfft(unittest.TestCase):
     def test_007_max_n_2_18(self):self._test_007_max_n_2(2**18)
     def test_007_max_n_2_19(self):self._test_007_max_n_2(2**19)
     def test_007_max_n_2_20(self):self._test_007_max_n_2(2**20)
+
+    def _test_007_range_max_error(self, n):
+        xr1 = np.array([(2**31)//n]*n, dtype=np.int32)
+        xi1 = np.array([(2**31)//n]*n, dtype=np.int32)
+        with self.assertRaises(Exception):
+            xr2, xi2 = fft(xr1, xi1)
+    def test_007_range_max_error_01(self):self._test_007_range_max_error(2**1)
+    def test_007_range_max_error_02(self):self._test_007_range_max_error(2**2)
+    def test_007_range_max_error_03(self):self._test_007_range_max_error(2**3)
+    def test_007_range_max_error_04(self):self._test_007_range_max_error(2**4)
+    def test_007_range_max_error_05(self):self._test_007_range_max_error(2**5)
+    def test_007_range_max_error_06(self):self._test_007_range_max_error(2**6)
+    def test_007_range_max_error_07(self):self._test_007_range_max_error(2**7)
+    def test_007_range_max_error_08(self):self._test_007_range_max_error(2**8)
+    def test_007_range_max_error_09(self):self._test_007_range_max_error(2**9)
+    def test_007_range_max_error_10(self):self._test_007_range_max_error(2**10)
+    def test_007_range_max_error_11(self):self._test_007_range_max_error(2**11)
+    def test_007_range_max_error_12(self):self._test_007_range_max_error(2**12)
+    def test_007_range_max_error_13(self):self._test_007_range_max_error(2**13)
+    def test_007_range_max_error_14(self):self._test_007_range_max_error(2**14)
+    def test_007_range_max_error_15(self):self._test_007_range_max_error(2**15)
+    def test_007_range_max_error_16(self):self._test_007_range_max_error(2**16)
+    def test_007_range_max_error_17(self):self._test_007_range_max_error(2**17)
+    def test_007_range_max_error_18(self):self._test_007_range_max_error(2**18)
+    def test_007_range_max_error_19(self):self._test_007_range_max_error(2**19)
+    def test_007_range_max_error_20(self):self._test_007_range_max_error(2**20)
     
     def _test_008_min_n_2(self, n):
         xr1 = np.array([-(2**31)//n]*n, dtype=np.int32)
@@ -147,6 +173,32 @@ class TestIntfft(unittest.TestCase):
     def test_008_min_n_2_18(self):self._test_008_min_n_2(2**18)
     def test_008_min_n_2_19(self):self._test_008_min_n_2(2**19)
     def test_008_min_n_2_20(self):self._test_008_min_n_2(2**20)
+
+    def _test_007_range_min_error(self, n):
+        xr1 = np.array([-(2**31)//n-1]*n, dtype=np.int32)
+        xi1 = np.array([-(2**31)//n-1]*n, dtype=np.int32)
+        with self.assertRaises(Exception):
+            xr2, xi2 = fft(xr1, xi1)
+    def test_007_range_min_error_01(self):self._test_007_range_min_error(2**1)
+    def test_007_range_min_error_02(self):self._test_007_range_min_error(2**2)
+    def test_007_range_min_error_03(self):self._test_007_range_min_error(2**3)
+    def test_007_range_min_error_04(self):self._test_007_range_min_error(2**4)
+    def test_007_range_min_error_05(self):self._test_007_range_min_error(2**5)
+    def test_007_range_min_error_06(self):self._test_007_range_min_error(2**6)
+    def test_007_range_min_error_07(self):self._test_007_range_min_error(2**7)
+    def test_007_range_min_error_08(self):self._test_007_range_min_error(2**8)
+    def test_007_range_min_error_09(self):self._test_007_range_min_error(2**9)
+    def test_007_range_min_error_10(self):self._test_007_range_min_error(2**10)
+    def test_007_range_min_error_11(self):self._test_007_range_min_error(2**11)
+    def test_007_range_min_error_12(self):self._test_007_range_min_error(2**12)
+    def test_007_range_min_error_13(self):self._test_007_range_min_error(2**13)
+    def test_007_range_min_error_14(self):self._test_007_range_min_error(2**14)
+    def test_007_range_min_error_15(self):self._test_007_range_min_error(2**15)
+    def test_007_range_min_error_16(self):self._test_007_range_min_error(2**16)
+    def test_007_range_min_error_17(self):self._test_007_range_min_error(2**17)
+    def test_007_range_min_error_18(self):self._test_007_range_min_error(2**18)
+    def test_007_range_min_error_19(self):self._test_007_range_min_error(2**19)
+    def test_007_range_min_error_20(self):self._test_007_range_min_error(2**20)
             
     def _test_009_random_n_2(self, n):
         for _ in range(10):
