@@ -43,4 +43,5 @@ Tasks
 
 Reference
 ------------
+- FFT (高速フーリエ・コサイン・サイン変換) の概略と設計法 https://www.kurims.kyoto-u.ac.jp/~ooura/fftman/
 - Soontorn Oraintara, Ying-Jui Chen, Truong Q.Nguyen: Integer Fast Fourier Transform. IEEE Transactions on Signal Processing, Vol. 50, 2002.
