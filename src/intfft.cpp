@@ -268,7 +268,7 @@ template <typename T> void check_range(py::array_t<T, 0>& ar, py::array_t<T, 0>&
         if (result==false){
             throw std::runtime_error("ar range is assumed to be ["
              + std::to_string(min_value)
-             + "," 
+             + ", " 
              + std::to_string(max_value)
              + "]");
         }
@@ -287,7 +287,7 @@ template <typename T> void check_range(py::array_t<T, 0>& ar, py::array_t<T, 0>&
         if (result==false){
             throw std::runtime_error("ai range is assumed to be ["
              + std::to_string(min_value)
-             + "," 
+             + ", " 
              + std::to_string(max_value)
              + "]");
         }
