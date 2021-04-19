@@ -29,7 +29,7 @@ class TestIntfft(unittest.TestCase):
     def _test_fft_input_ar_type_error(self, dtype):
         ar = np.arange(2**7, dtype=dtype)
         ai = np.arange(2**7, dtype=np.int32)
-        with self.assertRaisesRegex(Exception, "incompatible function arguments\. The following argument types are supported:"):
+        with self.assertRaisesRegex(Exception, "unexpected dtype:"):
             _, _ = fft(ar, ai)
     def test_fft_input_ar_type_error_i64(self):self._test_fft_input_ar_type_error(np.int64)
     def test_fft_input_ar_type_error_u32(self):self._test_fft_input_ar_type_error(np.uint32)
@@ -43,7 +43,7 @@ class TestIntfft(unittest.TestCase):
     def _test_fft_input_ai_type_error(self, dtype):
         ar = np.arange(2**7, dtype=np.int32)
         ai = np.arange(2**7, dtype=dtype)
-        with self.assertRaisesRegex(Exception, "incompatible function arguments\. The following argument types are supported:"):
+        with self.assertRaisesRegex(Exception, "unexpected dtype:"):
             _, _ = fft(ar, ai)
     def test_fft_input_ai_type_error_i64(self):self._test_fft_input_ai_type_error(np.int64)
     def test_fft_input_ai_type_error_u32(self):self._test_fft_input_ai_type_error(np.uint32)
@@ -57,7 +57,7 @@ class TestIntfft(unittest.TestCase):
     def _test_ifft_input_ar_error(self, dtype):
         ar = np.arange(2**7, dtype=dtype)
         ai = np.arange(2**7, dtype=np.int32)
-        with self.assertRaisesRegex(Exception, "incompatible function arguments\. The following argument types are supported:"):
+        with self.assertRaisesRegex(Exception, "unexpected dtype:"):
             _, _ = ifft(ar, ai)
     def test_ifft_input_ar_error_i64(self):self._test_ifft_input_ar_error(np.int64)
     def test_ifft_input_ar_error_u32(self):self._test_ifft_input_ar_error(np.uint32)
@@ -71,7 +71,7 @@ class TestIntfft(unittest.TestCase):
     def _test_ifft_input_ai_error(self, dtype):
         ar = np.arange(2**7, dtype=np.int32)
         ai = np.arange(2**7, dtype=dtype)
-        with self.assertRaisesRegex(Exception, "incompatible function arguments\. The following argument types are supported:"):
+        with self.assertRaisesRegex(Exception, "unexpected dtype:"):
             _, _ = ifft(ar, ai)
     def test_ifft_input_ai_error_i64(self):self._test_ifft_input_ai_error(np.int64)
     def test_ifft_input_ai_error_u32(self):self._test_ifft_input_ai_error(np.uint32)
@@ -146,7 +146,6 @@ class TestIntfft(unittest.TestCase):
         xr3, xi3 = ifft(xr2, xi2)
         self.assertTrue(np.all(xr3==xr1))
         self.assertTrue(np.all(xi3==xi1))
-    def test_fft_input_max_00(self):self._test_fft_input_max(2**0)
     def test_fft_input_max_01(self):self._test_fft_input_max(2**1)
     def test_fft_input_max_02(self):self._test_fft_input_max(2**2)
     def test_fft_input_max_03(self):self._test_fft_input_max(2**3)
@@ -172,7 +171,7 @@ class TestIntfft(unittest.TestCase):
     def _test_fft_input_ar_max_error(self, n):
         xr1 = np.array([(2**31)//n]*n, dtype=np.int32)
         xi1 = np.zeros(n, dtype=np.int32)
-        with self.assertRaisesRegex(Exception, "ar range is assumed to be \[-\d+, \d+\]"):
+        with self.assertRaisesRegex(Exception, "value range is assumed to be \[-\d+, \d+\]"):
             xr2, xi2 = fft(xr1, xi1)
     def test_fft_input_ar_max_error_01(self):self._test_fft_input_ar_max_error(2**1)
     def test_fft_input_ar_max_error_02(self):self._test_fft_input_ar_max_error(2**2)
@@ -199,7 +198,7 @@ class TestIntfft(unittest.TestCase):
     def _test_fft_input_ai_max_error(self, n):
         xr1 = np.zeros(n, dtype=np.int32)
         xi1 = np.array([(2**31)//n]*n, dtype=np.int32)
-        with self.assertRaisesRegex(Exception, "ai range is assumed to be \[-\d+, \d+\]"):
+        with self.assertRaisesRegex(Exception, "value range is assumed to be \[-\d+, \d+\]"):
             xr2, xi2 = fft(xr1, xi1)
     def test_fft_input_ai_max_error_01(self):self._test_fft_input_ai_max_error(2**1)
     def test_fft_input_ai_max_error_02(self):self._test_fft_input_ai_max_error(2**2)
@@ -230,7 +229,6 @@ class TestIntfft(unittest.TestCase):
         xr3, xi3 = ifft(xr2, xi2)
         self.assertTrue(np.all(xr3==xr1))
         self.assertTrue(np.all(xi3==xi1))
-    def test_fft_input_min_00(self):self._test_fft_input_min(2**0)
     def test_fft_input_min_01(self):self._test_fft_input_min(2**1)
     def test_fft_input_min_02(self):self._test_fft_input_min(2**2)
     def test_fft_input_min_03(self):self._test_fft_input_min(2**3)
@@ -256,7 +254,7 @@ class TestIntfft(unittest.TestCase):
     def _test_fft_input_ar_min_error(self, n):
         xr1 = np.array([-(2**31)//n-1]*n, dtype=np.int32)
         xi1 = np.zeros(n, dtype=np.int32)
-        with self.assertRaisesRegex(Exception, "ar range is assumed to be \[-\d+, \d+\]"):
+        with self.assertRaisesRegex(Exception, "value range is assumed to be \[-\d+, \d+\]"):
             xr2, xi2 = fft(xr1, xi1)
     def test_fft_input_ar_min_error_01(self):self._test_fft_input_ar_min_error(2**1)
     def test_fft_input_ar_min_error_02(self):self._test_fft_input_ar_min_error(2**2)
@@ -283,7 +281,7 @@ class TestIntfft(unittest.TestCase):
     def _test_fft_input_ai_min_error(self, n):
         xr1 = np.zeros(n, dtype=np.int32)
         xi1 = np.array([-(2**31)//n-1]*n, dtype=np.int32)
-        with self.assertRaisesRegex(Exception, "ai range is assumed to be \[-\d+, \d+\]"):
+        with self.assertRaisesRegex(Exception, "value range is assumed to be \[-\d+, \d+\]"):
             xr2, xi2 = fft(xr1, xi1)
     def test_fft_input_ai_min_error_01(self):self._test_fft_input_ai_min_error(2**1)
     def test_fft_input_ai_min_error_02(self):self._test_fft_input_ai_min_error(2**2)

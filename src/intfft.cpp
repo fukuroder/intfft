@@ -253,39 +253,20 @@ bool check_pow2(size_t x)
     return (x & (x-1))==0;
 }
 
-template <typename T> void check_range(py::array_t<T, 0>& ar, py::array_t<T, 0>& ai)
+void check_range(py::array_t<int32_t>& a)
 {
-    int ar_n = static_cast<int>(ar.shape(0));
-    if(ar_n >= 1){
-        int32_t min_value = -(0x80000000U / ar_n);
-        int32_t max_value = 0x80000000U / ar_n - 1;
+    ssize_t n = a.shape(0);
+    if(n >= 2){
+        int32_t min_value = - static_cast<int32_t>(0x80000000U / n);
+        int32_t max_value = static_cast<int32_t>(0x80000000U / n) - 1;
 
-        T* ptr = static_cast<T*>(ar.request().ptr);
-        bool result = std::all_of(ptr, ptr+ar_n, [min_value, max_value](T x){
+        int32_t* ptr = static_cast<int32_t*>(a.request().ptr);
+        bool result = std::all_of(ptr, ptr+n, [min_value, max_value](int32_t x){
             return (min_value <= x) && (x <= max_value);
         });
 
         if (result==false){
-            throw std::runtime_error("ar range is assumed to be ["
-             + std::to_string(min_value)
-             + ", " 
-             + std::to_string(max_value)
-             + "]");
-        }
-    }
-    
-    int ai_n = static_cast<int>(ai.shape(0));
-    if(ai_n >= 1){
-        int32_t min_value = -(0x80000000U / ai_n);
-        int32_t max_value = 0x80000000U / ai_n - 1;
-
-        T* ptr = static_cast<T*>(ai.request().ptr);
-        bool result = std::all_of(ptr, ptr+ai_n, [min_value, max_value](T x){
-            return (min_value <= x) && (x <= max_value);
-        });
-
-        if (result==false){
-            throw std::runtime_error("ai range is assumed to be ["
+            throw std::runtime_error("value range is assumed to be ["
              + std::to_string(min_value)
              + ", " 
              + std::to_string(max_value)
@@ -294,7 +275,7 @@ template <typename T> void check_range(py::array_t<T, 0>& ar, py::array_t<T, 0>&
     }
 }
 
-template <typename T> void check_args(py::array_t<T, 0>& ar, py::array_t<T, 0>& ai)
+void check_args(py::array& ar, py::array& ai)
 {
     if(ar.ndim() != 1){
         throw std::runtime_error("ar.ndim != 1");
@@ -310,54 +291,41 @@ template <typename T> void check_args(py::array_t<T, 0>& ar, py::array_t<T, 0>& 
     }
 }
 
-template <typename T>
-std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft(py::array_t<T, 0> ar, py::array_t<T, 0> ai) {    
-    check_args<T>(ar, ai);
-    check_range<T>(ar, ai);
-    py::array_t<int32_t> ar_(ar); // convert
-    py::array_t<int32_t> ai_(ai); // convert
+py::array_t<int32_t> cast_int32(py::array x){
+    if( py::dtype::of<int32_t>().is(x.dtype()) ){
+        return py::array_t<int32_t>(x.request()); // copy
+    }
+    else if( py::dtype::of<int8_t>().is(x.dtype())
+          || py::dtype::of<int16_t>().is(x.dtype()) 
+          || py::dtype::of<uint8_t>().is(x.dtype())
+          || py::dtype::of<uint16_t>().is(x.dtype()) ){
+        return py::array_t<int32_t>(x); // convert
+    }
+    else{
+        throw std::runtime_error("unexpected dtype: " + std::string(py::str(x.dtype())) );
+    }
+}
+
+std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft(py::array ar, py::array ai) {
+    check_args(ar, ai);
+    py::array_t<int32_t> ar_ = cast_int32(ar);
+    py::array_t<int32_t> ai_ = cast_int32(ai);
+    check_range(ar_);
+    check_range(ai_);
     fft_(static_cast<int>(ar_.shape(0)), static_cast<int32_t*>(ar_.request().ptr), static_cast<int32_t*>(ai_.request().ptr));
     return {ar_, ai_};
 }
 
-template <>
-std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft<int32_t>(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai) {
-    check_args<int32_t>(ar, ai);
-    check_range<int32_t>(ar, ai);
-    py::array_t<int32_t> ar_(ar.request()); // copy
-    py::array_t<int32_t> ai_(ai.request()); // copy
-    fft_(static_cast<int>(ar_.shape(0)), static_cast<int32_t*>(ar_.request().ptr), static_cast<int32_t*>(ai_.request().ptr));
-    return {ar_, ai_};
-}
-
-template <typename T>
-std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> ifft(py::array_t<T, 0> ar, py::array_t<T, 0>  ai) {
-    check_args<T>(ar, ai);
-    py::array_t<int32_t> ar_(ar); // convert
-    py::array_t<int32_t> ai_(ai); // convert
-    ifft_(static_cast<int>(ar_.shape(0)), static_cast<int32_t*>(ar_.request().ptr), static_cast<int32_t*>(ai_.request().ptr));
-    return {ar_, ai_};
-}
-
-template <>
-std::tuple<py::array_t<int>, py::array_t<int>> ifft<int32_t>(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0>  ai) {
-    check_args<int32_t>(ar, ai);
-    py::array_t<int32_t> ar_(ar.request()); // copy
-    py::array_t<int32_t> ai_(ai.request()); // copy
+std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> ifft(py::array ar, py::array  ai) {
+    check_args(ar, ai);
+    py::array_t<int32_t> ar_ = cast_int32(ar);
+    py::array_t<int32_t> ai_ = cast_int32(ai);
     ifft_(static_cast<int>(ar_.shape(0)), static_cast<int32_t*>(ar_.request().ptr), static_cast<int32_t*>(ai_.request().ptr));
     return {ar_, ai_};
 }
 
 PYBIND11_MODULE(intfft, m) {
     m.doc() = "Integer Fast Fourier Transform in Python";
-    m.def("fft", &fft<int8_t>, "");
-    m.def("fft", &fft<int16_t>, "");
-    m.def("fft", &fft<int32_t>, "");
-    m.def("fft", &fft<uint8_t>, "");
-    m.def("fft", &fft<uint16_t>, "");
-    m.def("ifft", &ifft<int8_t>, "");
-    m.def("ifft", &ifft<int16_t>, "");
-    m.def("ifft", &ifft<int32_t>, "");
-    m.def("ifft", &ifft<uint8_t>, "");
-    m.def("ifft", &ifft<uint16_t>, "");
-}
+    m.def("fft", &fft);
+    m.def("ifft", &ifft);
+ }
