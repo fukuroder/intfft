@@ -29,7 +29,7 @@ class TestIntfft(unittest.TestCase):
     def _test_fft_input_ar_type_error(self, dtype):
         ar = np.arange(2**7, dtype=dtype)
         ai = np.arange(2**7, dtype=np.int32)
-        with self.assertRaisesRegex(Exception, "unexpected dtype:"):
+        with self.assertRaisesRegex(Exception, "incompatible function arguments. The following argument types are supported:"):
             _, _ = fft(ar, ai)
     def test_fft_input_ar_type_error_i64(self):self._test_fft_input_ar_type_error(np.int64)
     def test_fft_input_ar_type_error_u32(self):self._test_fft_input_ar_type_error(np.uint32)
@@ -43,7 +43,7 @@ class TestIntfft(unittest.TestCase):
     def _test_fft_input_ai_type_error(self, dtype):
         ar = np.arange(2**7, dtype=np.int32)
         ai = np.arange(2**7, dtype=dtype)
-        with self.assertRaisesRegex(Exception, "unexpected dtype:"):
+        with self.assertRaisesRegex(Exception, "incompatible function arguments. The following argument types are supported:"):
             _, _ = fft(ar, ai)
     def test_fft_input_ai_type_error_i64(self):self._test_fft_input_ai_type_error(np.int64)
     def test_fft_input_ai_type_error_u32(self):self._test_fft_input_ai_type_error(np.uint32)
@@ -57,7 +57,7 @@ class TestIntfft(unittest.TestCase):
     def _test_ifft_input_ar_error(self, dtype):
         ar = np.arange(2**7, dtype=dtype)
         ai = np.arange(2**7, dtype=np.int32)
-        with self.assertRaisesRegex(Exception, "unexpected dtype:"):
+        with self.assertRaisesRegex(Exception, "incompatible function arguments. The following argument types are supported:"):
             _, _ = ifft(ar, ai)
     def test_ifft_input_ar_error_i64(self):self._test_ifft_input_ar_error(np.int64)
     def test_ifft_input_ar_error_u32(self):self._test_ifft_input_ar_error(np.uint32)
@@ -71,7 +71,7 @@ class TestIntfft(unittest.TestCase):
     def _test_ifft_input_ai_error(self, dtype):
         ar = np.arange(2**7, dtype=np.int32)
         ai = np.arange(2**7, dtype=dtype)
-        with self.assertRaisesRegex(Exception, "unexpected dtype:"):
+        with self.assertRaisesRegex(Exception, "incompatible function arguments. The following argument types are supported:"):
             _, _ = ifft(ar, ai)
     def test_ifft_input_ai_error_i64(self):self._test_ifft_input_ai_error(np.int64)
     def test_ifft_input_ai_error_u32(self):self._test_ifft_input_ai_error(np.uint32)
@@ -340,6 +340,46 @@ class TestIntfft(unittest.TestCase):
         xr1 = np.arange(2**5, dtype=np.int32)
         xi1 = np.zeros(2**5, dtype=np.int32)
         xr2, xi2 = fft(xr1, xi1)
+        xr2_ = [496, -20, -18, -16, -17, -15, -17, -16, -16, -17, -15, -17, -17, -15, -14, -16, -16, -16, -16, -18, -15, -15, -17, -12, -16, -15, -15, -17, -15, -15, -16, -16]
+        xi2_ = [0, 158, 79, 51, 39, 34, 25, 18, 16, 15, 12, 2, 6, 6, 2, 3, 0, 0, -1, -1, -7, -10, -13, -14, -16, -17, -26, -28, -38, -58, -78, -159]
+        self.assertTrue(np.all(xr2 == xr2_))
+        self.assertTrue(np.all(xi2 == xi2_))
+
+    # confirm intput type list
+    def test_fft_input_list(self):
+        xr1 = list(range(2**5))
+        xi1 = np.zeros(2**5, dtype=np.int32)
+        xr2, xi2 = fft(xr1, xi1)
+        xr2_ = [496, -20, -18, -16, -17, -15, -17, -16, -16, -17, -15, -17, -17, -15, -14, -16, -16, -16, -16, -18, -15, -15, -17, -12, -16, -15, -15, -17, -15, -15, -16, -16]
+        xi2_ = [0, 158, 79, 51, 39, 34, 25, 18, 16, 15, 12, 2, 6, 6, 2, 3, 0, 0, -1, -1, -7, -10, -13, -14, -16, -17, -26, -28, -38, -58, -78, -159]
+        self.assertTrue(np.all(xr2 == xr2_))
+        self.assertTrue(np.all(xi2 == xi2_))
+
+    # confirm intput type list
+    def test_ifft_input_list(self):
+        xr1 = np.arange(2**5, dtype=np.int32)
+        xi1 = [0] * (2**5)
+        xr2, xi2 = fft(xr1, xi1)
+        xr2_ = [496, -20, -18, -16, -17, -15, -17, -16, -16, -17, -15, -17, -17, -15, -14, -16, -16, -16, -16, -18, -15, -15, -17, -12, -16, -15, -15, -17, -15, -15, -16, -16]
+        xi2_ = [0, 158, 79, 51, 39, 34, 25, 18, 16, 15, 12, 2, 6, 6, 2, 3, 0, 0, -1, -1, -7, -10, -13, -14, -16, -17, -26, -28, -38, -58, -78, -159]
+        self.assertTrue(np.all(xr2 == xr2_))
+        self.assertTrue(np.all(xi2 == xi2_))
+
+    # confirm input with strides
+    def test_fft_input_with_strides(self):
+        xr1 = np.c_[np.arange(2**5, dtype=np.int32), np.arange(2**5, dtype=np.int32)].flatten()
+        xi1 = np.zeros(2**5, dtype=np.int32)
+        xr2, xi2 = fft(xr1[::2], xi1)
+        xr2_ = [496, -20, -18, -16, -17, -15, -17, -16, -16, -17, -15, -17, -17, -15, -14, -16, -16, -16, -16, -18, -15, -15, -17, -12, -16, -15, -15, -17, -15, -15, -16, -16]
+        xi2_ = [0, 158, 79, 51, 39, 34, 25, 18, 16, 15, 12, 2, 6, 6, 2, 3, 0, 0, -1, -1, -7, -10, -13, -14, -16, -17, -26, -28, -38, -58, -78, -159]
+        self.assertTrue(np.all(xr2 == xr2_))
+        self.assertTrue(np.all(xi2 == xi2_))
+
+    # confirm input with strides
+    def test_ifft_input_with_strides(self):
+        xr1 = np.arange(2**5, dtype=np.int32)
+        xi1 = np.zeros(2**6, dtype=np.int32)
+        xr2, xi2 = fft(xr1, xi1[::2])
         xr2_ = [496, -20, -18, -16, -17, -15, -17, -16, -16, -17, -15, -17, -17, -15, -14, -16, -16, -16, -16, -18, -15, -15, -17, -12, -16, -15, -15, -17, -15, -15, -16, -16]
         xi2_ = [0, 158, 79, 51, 39, 34, 25, 18, 16, 15, 12, 2, 6, 6, 2, 3, 0, 0, -1, -1, -7, -10, -13, -14, -16, -17, -26, -28, -38, -58, -78, -159]
         self.assertTrue(np.all(xr2 == xr2_))

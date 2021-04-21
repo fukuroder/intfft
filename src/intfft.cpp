@@ -253,7 +253,7 @@ bool check_pow2(size_t x)
     return (x & (x-1))==0;
 }
 
-void check_range(py::array_t<int32_t>& a)
+void check_range(py::array_t<int32_t,0>& a)
 {
     ssize_t n = a.shape(0);
     if(n >= 2){
@@ -275,7 +275,7 @@ void check_range(py::array_t<int32_t>& a)
     }
 }
 
-void check_args(py::array& ar, py::array& ai)
+void check_args(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai)
 {
     if(ar.ndim() != 1){
         throw std::runtime_error("ar.ndim != 1");
@@ -291,37 +291,30 @@ void check_args(py::array& ar, py::array& ai)
     }
 }
 
-py::array_t<int32_t> cast_int32(py::array x){
-    if( py::dtype::of<int32_t>().is(x.dtype()) ){
-        return py::array_t<int32_t>(x.request()); // copy
+std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai) {
+    check_args(ar, ai);
+    if (ar.ref_count()>1){
+        ar = py::array_t<int32_t, 0>(ar.request());
     }
-    else if( py::dtype::of<int8_t>().is(x.dtype())
-          || py::dtype::of<int16_t>().is(x.dtype()) 
-          || py::dtype::of<uint8_t>().is(x.dtype())
-          || py::dtype::of<uint16_t>().is(x.dtype()) ){
-        return py::array_t<int32_t>(x); // convert
+    if (ai.ref_count()>1){
+        ai = py::array_t<int32_t, 0>(ai.request());
     }
-    else{
-        throw std::runtime_error("unexpected dtype: " + std::string(py::str(x.dtype())) );
-    }
+    check_range(ar);
+    check_range(ai);
+    fft_(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
+    return {ar, ai};
 }
 
-std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft(py::array ar, py::array ai) {
+std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> ifft(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai) {
     check_args(ar, ai);
-    py::array_t<int32_t> ar_ = cast_int32(ar);
-    py::array_t<int32_t> ai_ = cast_int32(ai);
-    check_range(ar_);
-    check_range(ai_);
-    fft_(static_cast<int>(ar_.shape(0)), static_cast<int32_t*>(ar_.request().ptr), static_cast<int32_t*>(ai_.request().ptr));
-    return {ar_, ai_};
-}
-
-std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> ifft(py::array ar, py::array  ai) {
-    check_args(ar, ai);
-    py::array_t<int32_t> ar_ = cast_int32(ar);
-    py::array_t<int32_t> ai_ = cast_int32(ai);
-    ifft_(static_cast<int>(ar_.shape(0)), static_cast<int32_t*>(ar_.request().ptr), static_cast<int32_t*>(ai_.request().ptr));
-    return {ar_, ai_};
+    if (ar.ref_count()>1){
+        ar = py::array_t<int32_t, 0>(ar.request());
+    }
+    if (ai.ref_count()>1){
+        ai = py::array_t<int32_t, 0>(ai.request());
+    }
+    ifft_(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
+    return {ar, ai};
 }
 
 PYBIND11_MODULE(intfft, m) {
