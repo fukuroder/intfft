@@ -7,6 +7,8 @@ Function list
 |:---|:---|
 |fft|Discrete Fourier transform|
 |ifft|Inverse discrete Fourier transform|
+|rfft|Real discrete Fourier transform|
+|irfft|Inverse discrete Fourier transform|
 
 Installation
 ------------
@@ -34,7 +36,7 @@ array([0, 0, 0, 0, 0, 0, 0, 0])
 
 Tasks
 ------------
-- [ ] Add real FFT/IFFT
+- [x] Add real FFT/IFFT
 - [ ] Add DCT/IDCT
 - [ ] Add MDCT/IMDCT
 - [x] Implement with C++ extension
