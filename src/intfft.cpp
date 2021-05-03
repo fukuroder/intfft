@@ -191,7 +191,7 @@ void rfft_(int n, int32_t* a)
             a[i] = xr;
         }
     }
-    double theta = -8 * atan(1.0);  /* -2*pi */
+    double theta = -2*PI;
     for (int mh = 1, m; (m = mh << 1) <= n; mh = m) {
         int mq = mh >> 1;
         theta *= 0.5;
@@ -212,8 +212,6 @@ void rfft_(int n, int32_t* a)
                 int kr = j + mh + i;
                 int ki = j + m - i;
 
-                //double xr = wr * a[kr] + wi * a[ki];
-                //double xi = -(wr * a[ki] - wi * a[kr]);
                 auto[xr, xi] = lift_(a[kr], -a[ki], wr, wi);
                 a[kr] = -a[ji] - xi;
                 a[ki] = a[ji] - xi;
@@ -227,7 +225,7 @@ void rfft_(int n, int32_t* a)
 // Created by referring to https://www.kurims.kyoto-u.ac.jp/~ooura/fftman/ftmn2_12.html#sec2_1_2
 void irfft_(int n, int32_t* a)
 {
-    double theta = -8 * atan(1.0) / n;  /* 2*pi/n */
+    double theta = -2*PI/n;
     for (int m = n, mh; (mh = m >> 1) >= 1; m = mh) {
         int mq = mh >> 1;
 
