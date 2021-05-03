@@ -127,7 +127,7 @@ class TestRFFT(unittest.TestCase):
     def _test_fft_input_ar_max_error(self, n):
         xr1 = np.array([(2**31)//n]*n, dtype=np.int32)
         with self.assertRaisesRegex(Exception, "value range is assumed to be \[-\d+, \d+\]"):
-            xr2 = rfft(xr1)
+            _ = rfft(xr1)
     def test_fft_input_ar_max_error_01(self):self._test_fft_input_ar_max_error(2**1)
     def test_fft_input_ar_max_error_02(self):self._test_fft_input_ar_max_error(2**2)
     def test_fft_input_ar_max_error_03(self):self._test_fft_input_ar_max_error(2**3)
@@ -180,7 +180,7 @@ class TestRFFT(unittest.TestCase):
     def _test_fft_input_ar_min_error(self, n):
         xr1 = np.array([-(2**31)//n-1]*n, dtype=np.int32)
         with self.assertRaisesRegex(Exception, "value range is assumed to be \[-\d+, \d+\]"):
-            xr2 = rfft(xr1)
+            _ = rfft(xr1)
     def test_fft_input_ar_min_error_01(self):self._test_fft_input_ar_min_error(2**1)
     def test_fft_input_ar_min_error_02(self):self._test_fft_input_ar_min_error(2**2)
     def test_fft_input_ar_min_error_03(self):self._test_fft_input_ar_min_error(2**3)
@@ -265,7 +265,7 @@ class TestRFFT(unittest.TestCase):
         with self.assertRaisesRegex(Exception, regex):
             _ = rfft(x1)
     def test_fft_input_error_unexpected_ndim_ar(self):self._test_fft_input_shape_error((2**10,1), "a\.ndim != 1")
-    def test_fft_input_error_not_pow2(self):self._test_fft_input_shape_error((2**10+1,), "a.shape\(0\) is not a power of 2")
+    def test_fft_input_error_not_pow2(self):self._test_fft_input_shape_error((2**10+1,), "a\.shape\(0\) is not a power of 2")
 
     # confirm input shape(error)
     def _test_ifft_input_shape_error(self, shape1, regex):
@@ -273,7 +273,7 @@ class TestRFFT(unittest.TestCase):
         with self.assertRaisesRegex(Exception, regex):
             _ = irfft(x1)
     def test_ifft_input_error_unexpected_ndim_ar(self):self._test_ifft_input_shape_error((2**10,1), "a\.ndim != 1")
-    def test_ifft_input_error_not_pow2(self):self._test_ifft_input_shape_error((2**10+1,), "a.shape\(0\) is not a power of 2")
+    def test_ifft_input_error_not_pow2(self):self._test_ifft_input_shape_error((2**10+1,), "a\.shape\(0\) is not a power of 2")
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

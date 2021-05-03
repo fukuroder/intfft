@@ -172,7 +172,7 @@ class TestFFT(unittest.TestCase):
         xr1 = np.array([(2**31)//n]*n, dtype=np.int32)
         xi1 = np.zeros(n, dtype=np.int32)
         with self.assertRaisesRegex(Exception, "value range is assumed to be \[-\d+, \d+\]"):
-            xr2, xi2 = fft(xr1, xi1)
+            _, _ = fft(xr1, xi1)
     def test_fft_input_ar_max_error_01(self):self._test_fft_input_ar_max_error(2**1)
     def test_fft_input_ar_max_error_02(self):self._test_fft_input_ar_max_error(2**2)
     def test_fft_input_ar_max_error_03(self):self._test_fft_input_ar_max_error(2**3)
@@ -199,7 +199,7 @@ class TestFFT(unittest.TestCase):
         xr1 = np.zeros(n, dtype=np.int32)
         xi1 = np.array([(2**31)//n]*n, dtype=np.int32)
         with self.assertRaisesRegex(Exception, "value range is assumed to be \[-\d+, \d+\]"):
-            xr2, xi2 = fft(xr1, xi1)
+            _, _ = fft(xr1, xi1)
     def test_fft_input_ai_max_error_01(self):self._test_fft_input_ai_max_error(2**1)
     def test_fft_input_ai_max_error_02(self):self._test_fft_input_ai_max_error(2**2)
     def test_fft_input_ai_max_error_03(self):self._test_fft_input_ai_max_error(2**3)
@@ -255,7 +255,7 @@ class TestFFT(unittest.TestCase):
         xr1 = np.array([-(2**31)//n-1]*n, dtype=np.int32)
         xi1 = np.zeros(n, dtype=np.int32)
         with self.assertRaisesRegex(Exception, "value range is assumed to be \[-\d+, \d+\]"):
-            xr2, xi2 = fft(xr1, xi1)
+            _, _ = fft(xr1, xi1)
     def test_fft_input_ar_min_error_01(self):self._test_fft_input_ar_min_error(2**1)
     def test_fft_input_ar_min_error_02(self):self._test_fft_input_ar_min_error(2**2)
     def test_fft_input_ar_min_error_03(self):self._test_fft_input_ar_min_error(2**3)
@@ -282,7 +282,7 @@ class TestFFT(unittest.TestCase):
         xr1 = np.zeros(n, dtype=np.int32)
         xi1 = np.array([-(2**31)//n-1]*n, dtype=np.int32)
         with self.assertRaisesRegex(Exception, "value range is assumed to be \[-\d+, \d+\]"):
-            xr2, xi2 = fft(xr1, xi1)
+            _, _ = fft(xr1, xi1)
     def test_fft_input_ai_min_error_01(self):self._test_fft_input_ai_min_error(2**1)
     def test_fft_input_ai_min_error_02(self):self._test_fft_input_ai_min_error(2**2)
     def test_fft_input_ai_min_error_03(self):self._test_fft_input_ai_min_error(2**3)
@@ -383,8 +383,8 @@ class TestFFT(unittest.TestCase):
             _, _ = fft(x1, x2)
     def test_fft_input_error_unexpected_ndim_ar(self):self._test_fft_input_shape_error((2**10,1), (2**10,), "ar\.ndim != 1")
     def test_fft_input_error_unexpected_ndim_ai(self):self._test_fft_input_shape_error((2**10,), (2**10,1), "ai\.ndim != 1")
-    def test_fft_input_error_different_shape0(self):self._test_fft_input_shape_error(2**9, 2**10, "ar.shape\(0\) != ai.shape\(0\)")
-    def test_fft_input_error_not_pow2(self):self._test_fft_input_shape_error((2**10+1,), (2**10+1), "ar.shape\(0\) is not a power of 2")
+    def test_fft_input_error_different_shape0(self):self._test_fft_input_shape_error(2**9, 2**10, "ar\.shape\(0\) != ai\.shape\(0\)")
+    def test_fft_input_error_not_pow2(self):self._test_fft_input_shape_error((2**10+1,), (2**10+1), "ar\.shape\(0\) is not a power of 2")
 
     # confirm input shape(error)
     def _test_ifft_input_shape_error(self, shape1, shape2, regex):
@@ -394,8 +394,8 @@ class TestFFT(unittest.TestCase):
             _, _ = ifft(x1, x2)
     def test_ifft_input_error_unexpected_ndim_ar(self):self._test_ifft_input_shape_error((2**10,1), (2**10,), "ar\.ndim != 1")
     def test_ifft_input_error_unexpected_ndim_ai(self):self._test_ifft_input_shape_error((2**10,), (2**10,1), "ai\.ndim != 1")
-    def test_ifft_input_error_different_shape0(self):self._test_ifft_input_shape_error(2**9, 2**10, "ar.shape\(0\) != ai.shape\(0\)")
-    def test_ifft_input_error_not_pow2(self):self._test_ifft_input_shape_error((2**10+1,), (2**10+1), "ar.shape\(0\) is not a power of 2")
+    def test_ifft_input_error_different_shape0(self):self._test_ifft_input_shape_error(2**9, 2**10, "ar\.shape\(0\) != ai\.shape\(0\)")
+    def test_ifft_input_error_not_pow2(self):self._test_ifft_input_shape_error((2**10+1,), (2**10+1), "ar\.shape\(0\) is not a power of 2")
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
