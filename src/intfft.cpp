@@ -436,7 +436,6 @@ py::array_t<int32_t, 0> irfft(py::array_t<int32_t, 0> a) {
     if (a.ref_count()>1){
         a = py::array_t<int32_t, 0>(a.request());
     }
-    check_range(a);
     irfft_(static_cast<int>(a.shape(0)), static_cast<int32_t*>(a.request().ptr));
 
     return a;
