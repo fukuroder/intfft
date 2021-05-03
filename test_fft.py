@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from intfft import fft, ifft
 
-class TestIntfft(unittest.TestCase):
+class TestFFT(unittest.TestCase):
     # confirm the input arguments .
     def _test_fft_input_type(self, dtype):
         xr1 = np.arange(2**7, dtype=dtype)
@@ -348,7 +348,7 @@ class TestIntfft(unittest.TestCase):
     # confirm intput type list
     def test_fft_input_list(self):
         xr1 = list(range(2**5))
-        xi1 = np.zeros(2**5, dtype=np.int32)
+        xi1 = [0] * (2**5)
         xr2, xi2 = fft(xr1, xi1)
         xr2_ = [496, -20, -18, -16, -17, -15, -17, -16, -16, -17, -15, -17, -17, -15, -14, -16, -16, -16, -16, -18, -15, -15, -17, -12, -16, -15, -15, -17, -15, -15, -16, -16]
         xi2_ = [0, 158, 79, 51, 39, 34, 25, 18, 16, 15, 12, 2, 6, 6, 2, 3, 0, 0, -1, -1, -7, -10, -13, -14, -16, -17, -26, -28, -38, -58, -78, -159]
@@ -357,29 +357,19 @@ class TestIntfft(unittest.TestCase):
 
     # confirm intput type list
     def test_ifft_input_list(self):
-        xr1 = np.arange(2**5, dtype=np.int32)
-        xi1 = [0] * (2**5)
-        xr2, xi2 = fft(xr1, xi1)
-        xr2_ = [496, -20, -18, -16, -17, -15, -17, -16, -16, -17, -15, -17, -17, -15, -14, -16, -16, -16, -16, -18, -15, -15, -17, -12, -16, -15, -15, -17, -15, -15, -16, -16]
-        xi2_ = [0, 158, 79, 51, 39, 34, 25, 18, 16, 15, 12, 2, 6, 6, 2, 3, 0, 0, -1, -1, -7, -10, -13, -14, -16, -17, -26, -28, -38, -58, -78, -159]
+        xr1 = [496, -20, -18, -16, -17, -15, -17, -16, -16, -17, -15, -17, -17, -15, -14, -16, -16, -16, -16, -18, -15, -15, -17, -12, -16, -15, -15, -17, -15, -15, -16, -16]
+        xi1 = [0, 158, 79, 51, 39, 34, 25, 18, 16, 15, 12, 2, 6, 6, 2, 3, 0, 0, -1, -1, -7, -10, -13, -14, -16, -17, -26, -28, -38, -58, -78, -159]
+        xr2, xi2 = ifft(xr1, xi1)
+        xr2_ = np.arange(2**5, dtype=np.int32)
+        xi2_ = np.zeros(2**5, dtype=np.int32)
         self.assertTrue(np.all(xr2 == xr2_))
         self.assertTrue(np.all(xi2 == xi2_))
 
     # confirm input with strides
     def test_fft_input_with_strides(self):
         xr1 = np.c_[np.arange(2**5, dtype=np.int32), np.arange(2**5, dtype=np.int32)].flatten()
-        xi1 = np.zeros(2**5, dtype=np.int32)
-        xr2, xi2 = fft(xr1[::2], xi1)
-        xr2_ = [496, -20, -18, -16, -17, -15, -17, -16, -16, -17, -15, -17, -17, -15, -14, -16, -16, -16, -16, -18, -15, -15, -17, -12, -16, -15, -15, -17, -15, -15, -16, -16]
-        xi2_ = [0, 158, 79, 51, 39, 34, 25, 18, 16, 15, 12, 2, 6, 6, 2, 3, 0, 0, -1, -1, -7, -10, -13, -14, -16, -17, -26, -28, -38, -58, -78, -159]
-        self.assertTrue(np.all(xr2 == xr2_))
-        self.assertTrue(np.all(xi2 == xi2_))
-
-    # confirm input with strides
-    def test_ifft_input_with_strides(self):
-        xr1 = np.arange(2**5, dtype=np.int32)
         xi1 = np.zeros(2**6, dtype=np.int32)
-        xr2, xi2 = fft(xr1, xi1[::2])
+        xr2, xi2 = fft(xr1[::2], xi1[::2])
         xr2_ = [496, -20, -18, -16, -17, -15, -17, -16, -16, -17, -15, -17, -17, -15, -14, -16, -16, -16, -16, -18, -15, -15, -17, -12, -16, -15, -15, -17, -15, -15, -16, -16]
         xi2_ = [0, 158, 79, 51, 39, 34, 25, 18, 16, 15, 12, 2, 6, 6, 2, 3, 0, 0, -1, -1, -7, -10, -13, -14, -16, -17, -26, -28, -38, -58, -78, -159]
         self.assertTrue(np.all(xr2 == xr2_))

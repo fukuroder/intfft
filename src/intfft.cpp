@@ -346,7 +346,7 @@ bool check_pow2(size_t x)
     return (x & (x-1))==0;
 }
 
-void check_range(py::array_t<int32_t,0>& a)
+void check_range(py::array_t<int32_t, 0>& a)
 {
     ssize_t n = a.shape(0);
     if(n >= 2){
@@ -368,7 +368,7 @@ void check_range(py::array_t<int32_t,0>& a)
     }
 }
 
-void check_args(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai)
+void check_args_fft(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai)
 {
     if(ar.ndim() != 1){
         throw std::runtime_error("ar.ndim != 1");
@@ -384,8 +384,18 @@ void check_args(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai)
     }
 }
 
+void check_args_rfft(py::array_t<int32_t, 0> a)
+{
+    if(a.ndim() != 1){
+        throw std::runtime_error("a.ndim != 1");
+    }
+    if(check_pow2(a.shape(0)) == false){
+        throw std::runtime_error("a.shape(0) is not a power of 2");
+    }
+}
+
 std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai) {
-    check_args(ar, ai);
+    check_args_fft(ar, ai);
     if (ar.ref_count()>1){
         ar = py::array_t<int32_t, 0>(ar.request());
     }
@@ -399,7 +409,7 @@ std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft(py::array_t<int32_t, 
 }
 
 std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> ifft(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai) {
-    check_args(ar, ai);
+    check_args_fft(ar, ai);
     if (ar.ref_count()>1){
         ar = py::array_t<int32_t, 0>(ar.request());
     }
@@ -411,18 +421,22 @@ std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> ifft(py::array_t<int32_t,
 }
 
 py::array_t<int32_t, 0> rfft(py::array_t<int32_t, 0> a) {
+    check_args_rfft(a);
     if (a.ref_count()>1){
         a = py::array_t<int32_t, 0>(a.request());
     }
+    check_range(a);
     rfft_(static_cast<int>(a.shape(0)), static_cast<int32_t*>(a.request().ptr));
 
     return a;
 }
 
 py::array_t<int32_t, 0> irfft(py::array_t<int32_t, 0> a) {
+    check_args_rfft(a);
     if (a.ref_count()>1){
         a = py::array_t<int32_t, 0>(a.request());
     }
+    check_range(a);
     irfft_(static_cast<int>(a.shape(0)), static_cast<int32_t*>(a.request().ptr));
 
     return a;
