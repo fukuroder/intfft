@@ -178,6 +178,72 @@ void fft_(int n, int32_t* ar, int32_t* ai)
     }
 }
 
+// Created by referring to http://www.kurims.kyoto-u.ac.jp/~ooura/fftman/ftmn1_24.html#sec1_2_4
+void ifft_(int n, int32_t* ar, int32_t* ai)
+{
+    // scrambler
+    for (int i = 0, j = 1; j < n - 1; j++) {
+        for (int k = n >> 1; k > (i ^= k); k >>= 1);
+        if (j < i) {
+            const int32_t x0r = ar[j];
+            const int32_t x0i = ai[j];
+            ar[j] = ar[i];
+            ai[j] = ai[i];
+            ar[i] = x0r;
+            ai[i] = x0i;
+        }
+    }
+
+    // radix 2 butterflies
+    for (int k = 2; k <= n; k <<= 2) {
+        for (int j = k - 2; j < n; j += 2 * k) {
+            const int32_t x0r = ar[j];
+            const int32_t x0i = ai[j];
+            ar[j] = (x0r + ar[j + 1]) / 2;
+            ai[j] = (x0i + ai[j + 1]) / 2;
+            ar[j + 1] = x0r - ar[j];
+            ai[j + 1] = x0i - ai[j];
+        }
+    }
+
+    // L shaped butterflies
+    for (int m = 4; m <= n; m <<= 1) {
+        const double theta =  - 2 * PI / m;
+        const int mq = m >> 2;
+        for (int i = 0; i < mq; i++) {
+            const double s1 = std::sin(theta * i);
+            const double c1 = std::cos(theta * i);
+            const double s3 = std::sin(theta * 3 * i);
+            const double c3 = std::cos(theta * 3 * i);
+            for (int k = m; k <= n; k <<= 2) {
+                for (int j0 = k - m + i; j0 < n; j0 += 2 * k) {
+                    const int j1 = j0 + mq;
+                    const int j2 = j1 + mq;
+                    const int j3 = j2 + mq;
+                    const int32_t x0r = ar[j0];
+                    const int32_t x0i = ai[j0];
+                    const int32_t x1r = ar[j1];
+                    const int32_t x1i = ai[j1];
+                    auto [x2r, x2i] = ilift_(ar[j2], ai[j2], c1, s1);
+                    auto [x3r, x3i] = ilift_(ar[j3], ai[j3], c3, s3);
+                    const int32_t x2r_ = (x2r + x3r)/2;
+                    const int32_t x2i_ = (x2i + x3i)/2;
+                    const int32_t x3r_ = -(x2i - x2i_);
+                    const int32_t x3i_ = (x2r - x2r_);
+                    ar[j0] = (x0r + x2r_)/2;
+                    ai[j0] = (x0i + x2i_)/2;
+                    ar[j1] = (x1r + x3r_)/2;
+                    ai[j1] = (x1i + x3i_)/2;
+                    ar[j2] = (x0r - ar[j0]);
+                    ai[j2] = (x0i - ai[j0]);
+                    ar[j3] = (x1r - ar[j1]);
+                    ai[j3] = (x1i - ai[j1]);
+                }
+            }
+        }
+    }
+}
+
 // Created by referring to https://www.kurims.kyoto-u.ac.jp/~ooura/fftman/ftmn2_12.html#sec2_1_2
 void rfft_(int n, int32_t* a)
 {
@@ -270,71 +336,7 @@ void irfft_(int n, int32_t* a)
     }
 }
 
-// Created by referring to http://www.kurims.kyoto-u.ac.jp/~ooura/fftman/ftmn1_24.html#sec1_2_4
-void ifft_(int n, int32_t* ar, int32_t* ai)
-{
-    // scrambler
-    for (int i = 0, j = 1; j < n - 1; j++) {
-        for (int k = n >> 1; k > (i ^= k); k >>= 1);
-        if (j < i) {
-            const int32_t x0r = ar[j];
-            const int32_t x0i = ai[j];
-            ar[j] = ar[i];
-            ai[j] = ai[i];
-            ar[i] = x0r;
-            ai[i] = x0i;
-        }
-    }
 
-    // radix 2 butterflies
-    for (int k = 2; k <= n; k <<= 2) {
-        for (int j = k - 2; j < n; j += 2 * k) {
-            const int32_t x0r = ar[j];
-            const int32_t x0i = ai[j];
-            ar[j] = (x0r + ar[j + 1]) / 2;
-            ai[j] = (x0i + ai[j + 1]) / 2;
-            ar[j + 1] = x0r - ar[j];
-            ai[j + 1] = x0i - ai[j];
-        }
-    }
-
-    // L shaped butterflies
-    for (int m = 4; m <= n; m <<= 1) {
-        const double theta =  - 2 * PI / m;
-        const int mq = m >> 2;
-        for (int i = 0; i < mq; i++) {
-            const double s1 = std::sin(theta * i);
-            const double c1 = std::cos(theta * i);
-            const double s3 = std::sin(theta * 3 * i);
-            const double c3 = std::cos(theta * 3 * i);
-            for (int k = m; k <= n; k <<= 2) {
-                for (int j0 = k - m + i; j0 < n; j0 += 2 * k) {
-                    const int j1 = j0 + mq;
-                    const int j2 = j1 + mq;
-                    const int j3 = j2 + mq;
-                    const int32_t x0r = ar[j0];
-                    const int32_t x0i = ai[j0];
-                    const int32_t x1r = ar[j1];
-                    const int32_t x1i = ai[j1];
-                    auto [x2r, x2i] = ilift_(ar[j2], ai[j2], c1, s1);
-                    auto [x3r, x3i] = ilift_(ar[j3], ai[j3], c3, s3);
-                    const int32_t x2r_ = (x2r + x3r)/2;
-                    const int32_t x2i_ = (x2i + x3i)/2;
-                    const int32_t x3r_ = -(x2i - x2i_);
-                    const int32_t x3i_ = (x2r - x2r_);
-                    ar[j0] = (x0r + x2r_)/2;
-                    ai[j0] = (x0i + x2i_)/2;
-                    ar[j1] = (x1r + x3r_)/2;
-                    ai[j1] = (x1i + x3i_)/2;
-                    ar[j2] = (x0r - ar[j0]);
-                    ai[j2] = (x0i - ai[j0]);
-                    ar[j3] = (x1r - ar[j1]);
-                    ai[j3] = (x1i - ai[j1]);
-                }
-            }
-        }
-    }
-}
 
 bool check_pow2(size_t x)
 {
