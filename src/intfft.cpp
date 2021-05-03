@@ -151,7 +151,6 @@ void fft_(int n, int32_t* ar, int32_t* ai)
                 }
             }
         }
-
     }
 
     // radix 2 butterflies
@@ -182,7 +181,7 @@ void fft_(int n, int32_t* ar, int32_t* ai)
 // Created by referring to https://www.kurims.kyoto-u.ac.jp/~ooura/fftman/ftmn2_12.html#sec2_1_2
 void rfft_(int n, int32_t* a)
 {
-    /* ---- scrambler ---- */
+    // scrambler
     for (int i = 0, j = 1; j < n - 1; j++) {
         for (int k = n >> 1; k > (i ^= k); k >>= 1);
         if (j < i) {
@@ -191,18 +190,20 @@ void rfft_(int n, int32_t* a)
             a[i] = xr;
         }
     }
-    double theta = -2*PI;
+    
     for (int mh = 1, m; (m = mh << 1) <= n; mh = m) {
+        const double theta = -2*PI / m;
         int mq = mh >> 1;
-        theta *= 0.5;
-        /* ---- real to real butterflies (W == 1) ---- */
+
+        // real to real butterflies (W == 1)
         for (int jr = 0; jr < n; jr += m) {
             int kr = jr + mh;
             int32_t xr = a[kr];
             a[kr] = a[jr] - xr;
             a[jr] += xr;
         }
-        /* ---- complex to complex butterflies (W != 1) ---- */
+
+        // complex to complex butterflies (W != 1)
         for (int i = 1; i < mq; i++) {
             const double wr = std::cos(theta * i);
             const double wi = std::sin(theta * i);
@@ -225,11 +226,11 @@ void rfft_(int n, int32_t* a)
 // Created by referring to https://www.kurims.kyoto-u.ac.jp/~ooura/fftman/ftmn2_12.html#sec2_1_2
 void irfft_(int n, int32_t* a)
 {
-    double theta = -2*PI/n;
     for (int m = n, mh; (mh = m >> 1) >= 1; m = mh) {
+        const double theta = -2*PI / m;
         int mq = mh >> 1;
 
-        /* ---- complex to complex butterflies (W != 1) ---- */
+        // complex to complex butterflies (W != 1)
         for (int i = 1; i < mq; i++) {
             const double wr = cos(theta * i);
             const double wi = sin(theta * i);
@@ -249,17 +250,16 @@ void irfft_(int n, int32_t* a)
             }
         }
 
-        /* ---- real to real butterflies (W == 1) ---- */
+        // real to real butterflies (W == 1)
         for (int jr = 0; jr < n; jr += m) {
             int kr = jr + mh;
             int32_t xr = a[jr];
             a[jr] = (xr + a[kr]) / 2;
             a[kr] = (xr - a[kr]) / 2;
         }
-        theta *= 2;
     }
     
-    /* ---- unscrambler ---- */
+    // unscrambler
     for (int i = 0, j = 1; j < n - 1; j++) {
         for (int k = n >> 1; k > (i ^= k); k >>= 1);
         if (j < i) {
