@@ -224,8 +224,8 @@ void ifft_(int n, int32_t* ar, int32_t* ai)
                     const int32_t x0i = ai[j0];
                     const int32_t x1r = ar[j1];
                     const int32_t x1i = ai[j1];
-                    auto [x2r, x2i] = ilift_(ar[j2], ai[j2], c1, s1);
-                    auto [x3r, x3i] = ilift_(ar[j3], ai[j3], c3, s3);
+                    const auto [x2r, x2i] = ilift_(ar[j2], ai[j2], c1, s1);
+                    const auto [x3r, x3i] = ilift_(ar[j3], ai[j3], c3, s3);
                     const int32_t x2r_ = (x2r + x3r)/2;
                     const int32_t x2i_ = (x2i + x3i)/2;
                     const int32_t x3r_ = -(x2i - x2i_);
@@ -251,7 +251,7 @@ void rfft_(int n, int32_t* a)
     for (int i = 0, j = 1; j < n - 1; j++) {
         for (int k = n >> 1; k > (i ^= k); k >>= 1);
         if (j < i) {
-            int32_t xr = a[j];
+            const int32_t xr = a[j];
             a[j] = a[i];
             a[i] = xr;
         }
@@ -259,12 +259,12 @@ void rfft_(int n, int32_t* a)
     
     for (int mh = 1, m; (m = mh << 1) <= n; mh = m) {
         const double theta = -2*PI / m;
-        int mq = mh >> 1;
+        const int mq = mh >> 1;
 
         // real to real butterflies (W == 1)
         for (int jr = 0; jr < n; jr += m) {
-            int kr = jr + mh;
-            int32_t xr = a[kr];
+            const int kr = jr + mh;
+            const int32_t xr = a[kr];
             a[kr] = a[jr] - xr;
             a[jr] += xr;
         }
@@ -274,12 +274,12 @@ void rfft_(int n, int32_t* a)
             const double wr = std::cos(theta * i);
             const double wi = std::sin(theta * i);
             for (int j = 0; j < n; j += m) {
-                int jr = j + i;
-                int ji = j + mh - i;
-                int kr = j + mh + i;
-                int ki = j + m - i;
+                const int jr = j + i;
+                const int ji = j + mh - i;
+                const int kr = j + mh + i;
+                const int ki = j + m - i;
 
-                auto[xr, xi] = lift_(a[kr], -a[ki], wr, wi);
+                const auto[xr, xi] = lift_(a[kr], -a[ki], wr, wi);
                 a[kr] = -a[ji] - xi;
                 a[ki] = a[ji] - xi;
                 a[ji] = a[jr] - xr;
@@ -294,20 +294,20 @@ void irfft_(int n, int32_t* a)
 {
     for (int m = n, mh; (mh = m >> 1) >= 1; m = mh) {
         const double theta = -2*PI / m;
-        int mq = mh >> 1;
+        const int mq = mh >> 1;
 
         // complex to complex butterflies (W != 1)
         for (int i = 1; i < mq; i++) {
             const double wr = cos(theta * i);
             const double wi = sin(theta * i);
             for (int j = 0; j < n; j += m) {
-                int jr = j + i;
-                int ji = j + mh - i;
-                int kr = j + mh + i;
-                int ki = j + m - i;
+                const int jr = j + i;
+                const int ji = j + mh - i;
+                const int kr = j + mh + i;
+                const int ki = j + m - i;
                 
-                int32_t xr = -(a[ji] - a[jr])/2;
-                int32_t xi = -(a[kr] + a[ki])/2;
+                const int32_t xr = -(a[ji] - a[jr])/2;
+                const int32_t xi = -(a[kr] + a[ki])/2;
                 a[jr] = (a[ji] + a[jr])/2;
                 a[ji] = -(a[kr] - a[ki])/2;
 
@@ -318,8 +318,8 @@ void irfft_(int n, int32_t* a)
 
         // real to real butterflies (W == 1)
         for (int jr = 0; jr < n; jr += m) {
-            int kr = jr + mh;
-            int32_t xr = a[jr];
+            const int kr = jr + mh;
+            const int32_t xr = a[jr];
             a[jr] = (xr + a[kr]) / 2;
             a[kr] = (xr - a[kr]) / 2;
         }
@@ -329,14 +329,12 @@ void irfft_(int n, int32_t* a)
     for (int i = 0, j = 1; j < n - 1; j++) {
         for (int k = n >> 1; k > (i ^= k); k >>= 1);
         if (j < i) {
-            int32_t xr = a[j];
+            const int32_t xr = a[j];
             a[j] = a[i];
             a[i] = xr;
         }
     }
 }
-
-
 
 bool check_pow2(size_t x)
 {
