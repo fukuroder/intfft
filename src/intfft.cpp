@@ -45,7 +45,7 @@ std::tuple<int32_t, int32_t> ilift_(int32_t xr, int32_t xi, double c, double s)
 }
 */
 
-std::tuple<int32_t, int32_t> lift_(int32_t xr, int32_t xi, double c, double s)
+static std::tuple<int32_t, int32_t> lift(int32_t xr, int32_t xi, double c, double s)
 {
     if(s == 0.0){
         return {xr, xi};
@@ -83,7 +83,7 @@ std::tuple<int32_t, int32_t> lift_(int32_t xr, int32_t xi, double c, double s)
     return {xr, xi};
 }
 
-std::tuple<int32_t, int32_t> ilift_(int32_t xr, int32_t xi, double c, double s)
+static std::tuple<int32_t, int32_t> ilift(int32_t xr, int32_t xi, double c, double s)
 {
     if(s == 0.0){
         return {xr, xi};
@@ -122,7 +122,7 @@ std::tuple<int32_t, int32_t> ilift_(int32_t xr, int32_t xi, double c, double s)
 }
 
 // Created by referring to http://www.kurims.kyoto-u.ac.jp/~ooura/fftman/ftmn1_24.html#sec1_2_4
-void fft_(int n, int32_t* ar, int32_t* ai)
+static void fft(int n, int32_t* ar, int32_t* ai)
 {   
     // L shaped butterflies
     for (int m = n; m > 2; m >>= 1) {
@@ -146,8 +146,8 @@ void fft_(int n, int32_t* ar, int32_t* ai)
                     const int32_t x3i = ai[j1] - ai[j3];
                     ar[j1] += ar[j3];
                     ai[j1] += ai[j3];
-                    std::tie(ar[j2], ai[j2]) = lift_(x1r + x3i, x1i - x3r, c1, s1);
-                    std::tie(ar[j3], ai[j3]) = lift_(x1r - x3i, x1i + x3r, c3, s3);
+                    std::tie(ar[j2], ai[j2]) = lift(x1r + x3i, x1i - x3r, c1, s1);
+                    std::tie(ar[j3], ai[j3]) = lift(x1r - x3i, x1i + x3r, c3, s3);
                 }
             }
         }
@@ -179,7 +179,7 @@ void fft_(int n, int32_t* ar, int32_t* ai)
 }
 
 // Created by referring to http://www.kurims.kyoto-u.ac.jp/~ooura/fftman/ftmn1_24.html#sec1_2_4
-void ifft_(int n, int32_t* ar, int32_t* ai)
+static void ifft(int n, int32_t* ar, int32_t* ai)
 {
     // scrambler
     for (int i = 0, j = 1; j < n - 1; j++) {
@@ -224,8 +224,8 @@ void ifft_(int n, int32_t* ar, int32_t* ai)
                     const int32_t x0i = ai[j0];
                     const int32_t x1r = ar[j1];
                     const int32_t x1i = ai[j1];
-                    const auto [x2r, x2i] = ilift_(ar[j2], ai[j2], c1, s1);
-                    const auto [x3r, x3i] = ilift_(ar[j3], ai[j3], c3, s3);
+                    const auto [x2r, x2i] = ilift(ar[j2], ai[j2], c1, s1);
+                    const auto [x3r, x3i] = ilift(ar[j3], ai[j3], c3, s3);
                     const int32_t x2r_ = (x2r + x3r)/2;
                     const int32_t x2i_ = (x2i + x3i)/2;
                     const int32_t x3r_ = -(x2i - x2i_);
@@ -245,7 +245,7 @@ void ifft_(int n, int32_t* ar, int32_t* ai)
 }
 
 // Created by referring to https://www.kurims.kyoto-u.ac.jp/~ooura/fftman/ftmn2_12.html#sec2_1_2
-void rfft_(int n, int32_t* a)
+static void rfft(int n, int32_t* a)
 {
     // scrambler
     for (int i = 0, j = 1; j < n - 1; j++) {
@@ -278,8 +278,7 @@ void rfft_(int n, int32_t* a)
                 const int ji = j + mh - i;
                 const int kr = j + mh + i;
                 const int ki = j + m - i;
-
-                const auto[xr, xi] = lift_(a[kr], -a[ki], wr, wi);
+                const auto[xr, xi] = lift(a[kr], -a[ki], wr, wi);
                 a[kr] = -a[ji] - xi;
                 a[ki] = a[ji] - xi;
                 a[ji] = a[jr] - xr;
@@ -290,7 +289,7 @@ void rfft_(int n, int32_t* a)
 }
 
 // Created by referring to https://www.kurims.kyoto-u.ac.jp/~ooura/fftman/ftmn2_12.html#sec2_1_2
-void irfft_(int n, int32_t* a)
+static void irfft(int n, int32_t* a)
 {
     for (int m = n, mh; (mh = m >> 1) >= 1; m = mh) {
         const double theta = -2*PI / m;
@@ -305,13 +304,11 @@ void irfft_(int n, int32_t* a)
                 const int ji = j + mh - i;
                 const int kr = j + mh + i;
                 const int ki = j + m - i;
-                
                 const int32_t xr = -(a[ji] - a[jr])/2;
                 const int32_t xi = -(a[kr] + a[ki])/2;
                 a[jr] = (a[ji] + a[jr])/2;
                 a[ji] = -(a[kr] - a[ki])/2;
-
-                std::tie(a[kr], a[ki]) = ilift_(xr, xi, wr, wi);
+                std::tie(a[kr], a[ki]) = ilift(xr, xi, wr, wi);
                 a[ki] = -a[ki];
             }
         }
@@ -336,7 +333,8 @@ void irfft_(int n, int32_t* a)
     }
 }
 
-bool check_pow2(size_t x)
+//
+static bool check_pow2(size_t x)
 {
     if(x == 0){
         return false;
@@ -344,7 +342,8 @@ bool check_pow2(size_t x)
     return (x & (x-1))==0;
 }
 
-void check_range(py::array_t<int32_t, 0>& a)
+//
+static void check_range(py::array_t<int32_t, 0>& a)
 {
     ssize_t n = a.shape(0);
     if(n >= 2){
@@ -366,7 +365,8 @@ void check_range(py::array_t<int32_t, 0>& a)
     }
 }
 
-void check_args_fft(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai)
+//
+static void check_args_fft(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai)
 {
     if(ar.ndim() != 1){
         throw std::runtime_error("ar.ndim != 1");
@@ -382,7 +382,8 @@ void check_args_fft(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai)
     }
 }
 
-void check_args_rfft(py::array_t<int32_t, 0> a)
+//
+static void check_args_rfft(py::array_t<int32_t, 0> a)
 {
     if(a.ndim() != 1){
         throw std::runtime_error("a.ndim != 1");
@@ -392,7 +393,8 @@ void check_args_rfft(py::array_t<int32_t, 0> a)
     }
 }
 
-std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai) {
+//
+static std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fftpy(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai) {
     check_args_fft(ar, ai);
     if (ar.ref_count()>1){
         ar = py::array_t<int32_t, 0>(ar.request());
@@ -402,11 +404,12 @@ std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> fft(py::array_t<int32_t, 
     }
     check_range(ar);
     check_range(ai);
-    fft_(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
+    fft(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
     return {ar, ai};
 }
 
-std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> ifft(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai) {
+//
+static std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> ifftpy(py::array_t<int32_t, 0> ar, py::array_t<int32_t, 0> ai) {
     check_args_fft(ar, ai);
     if (ar.ref_count()>1){
         ar = py::array_t<int32_t, 0>(ar.request());
@@ -414,99 +417,35 @@ std::tuple<py::array_t<int32_t>, py::array_t<int32_t>> ifft(py::array_t<int32_t,
     if (ai.ref_count()>1){
         ai = py::array_t<int32_t, 0>(ai.request());
     }
-    ifft_(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
+    ifft(static_cast<int>(ar.shape(0)), static_cast<int32_t*>(ar.request().ptr), static_cast<int32_t*>(ai.request().ptr));
     return {ar, ai};
 }
 
-py::array_t<int32_t, 0> rfft(py::array_t<int32_t, 0> a) {
+//
+static py::array_t<int32_t, 0> rfftpy(py::array_t<int32_t, 0> a) {
     check_args_rfft(a);
     if (a.ref_count()>1){
         a = py::array_t<int32_t, 0>(a.request());
     }
     check_range(a);
-    rfft_(static_cast<int>(a.shape(0)), static_cast<int32_t*>(a.request().ptr));
-
+    rfft(static_cast<int>(a.shape(0)), static_cast<int32_t*>(a.request().ptr));
     return a;
 }
 
-py::array_t<int32_t, 0> irfft(py::array_t<int32_t, 0> a) {
+//
+static py::array_t<int32_t, 0> irfftpy(py::array_t<int32_t, 0> a) {
     check_args_rfft(a);
     if (a.ref_count()>1){
         a = py::array_t<int32_t, 0>(a.request());
     }
-    irfft_(static_cast<int>(a.shape(0)), static_cast<int32_t*>(a.request().ptr));
-
+    irfft(static_cast<int>(a.shape(0)), static_cast<int32_t*>(a.request().ptr));
     return a;
 }
 
 PYBIND11_MODULE(intfft, m) {
     m.doc() = "Integer Fast Fourier Transform in Python";
-    m.def("fft", &fft);
-    m.def("ifft", &ifft);
-    m.def("rfft", &rfft);
-    m.def("irfft", &irfft);
+    m.def("fft", &fftpy);
+    m.def("ifft", &ifftpy);
+    m.def("rfft", &rfftpy);
+    m.def("irfft", &irfftpy);
  }
-
- /*
-void fft_(int n, int32_t* ar, int32_t* ai)
-{  
-    // unscrambler
-    for (int i = 0, j = 1; j < n - 1; j++) {
-        for (int k = n >> 1; k > (i ^= k); k >>= 1);
-        if (j < i) {
-            const int32_t x0r = ar[j];
-            const int32_t x0i = ai[j];
-            ar[j] = ar[i];
-            ai[j] = ai[i];
-            ar[i] = x0r;
-            ai[i] = x0i;
-        }
-    }
-
-    const double theta = -PI / 2 / n;
-
-    // L shaped butterflies
-    for (int m = 4; m <= n; m <<= 1) { 
-        const int mq = m >> 2;
-        int irev = 0;
-        for (int i = 0; i < n; i += m) {
-            const double s1 = std::sin(theta * irev);
-            const double c1 = std::cos(theta * irev);
-            const double s3 = std::sin(theta * 3 * irev);
-            const double c3 = std::cos(theta * 3 * irev);
-            for (int k = n >> 1; k > (irev ^= k); k >>= 1);
-            for (int k = mq; k >= 1; k >>= 2) {
-                for (int j0 = i + mq - k; j0 < i + mq - (k >> 1); j0++) {
-                    const int j1 = j0 + mq;
-                    const int j2 = j1 + mq;
-                    const int j3 = j2 + mq;
-                    const int32_t x1r = ar[j0] - ar[j1];
-                    const int32_t x1i = ai[j0] - ai[j1];
-                    ar[j0] += ar[j1];
-                    ai[j0] += ai[j1];
-                    const int32_t x3r = ar[j3] - ar[j2];
-                    const int32_t x3i = ai[j3] - ai[j2];
-                    ar[j2] += ar[j3];
-                    ai[j2] += ai[j3];
-                    std::tie(ar[j1], ai[j1]) = lift_(x1r - x3i, x1i + x3r, c1, s1);
-                    std::tie(ar[j3], ai[j3]) = lift_(x1r + x3i, x1i - x3r, c3, s3);
-                }
-            }
-        }
-    }
-
-    // radix 2 butterflies
-    const int mq = n >> 1;
-    for (int k = mq; k >= 1; k >>= 2) {
-        for (int j = mq - k; j < mq - (k >> 1); j++) {
-            int j1 = mq + j;
-            const int32_t x0r = ar[j] - ar[j1];
-            const int32_t x0i = ai[j] - ai[j1];
-            ar[j] += ar[j1];
-            ai[j] += ai[j1];
-            ar[j1] = x0r;
-            ai[j1] = x0i;
-        }
-    }
-}
-*/
